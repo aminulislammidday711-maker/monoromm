@@ -1,0 +1,3 @@
+import { User } from '../models/User.js';
+export async function me(req,res){const u=await User.findById(req.auth.sub).select('-passwordHash'); if(!u)return res.status(404).json({error:'User not found'}); res.json({user:{id:u.id,name:u.name,mobile:u.mobile,email:u.email,language:u.language,lastSeenAt:u.lastSeenAt}});}
+export async function updateMe(req,res){const allowed=['name','email','language']; const patch={}; for(const k of allowed) if(req.body[k]!==undefined) patch[k]=req.body[k]; const u=await User.findByIdAndUpdate(req.auth.sub,patch,{new:true}).select('-passwordHash'); res.json({user:{id:u.id,name:u.name,mobile:u.mobile,email:u.email,language:u.language}});}

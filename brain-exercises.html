@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Brain Exercises — Monorom Memory Companion</title>
+
+<style>
+  /* ============================================================
+     Palette matched to the Monorom Memory Companion light home screen:
+     warm cream background, white panels, deep text, soft gold
+     accent for the primary action. Large text and big tap targets
+     throughout for elderly / low-vision users.
+     ============================================================ */
+  :root{
+    --bg-light:   #f4f1e8;
+    --bg-panel:   #ffffff;
+    --brand:      #2f6b4f;
+    --brand-2:    #3f8a63;
+    --card:       #ffffff;
+    --card-text:  #1c2a20;
+    --muted:      #5c665e;
+    --gold:       #f2a93b;
+    --danger:     #d1483a;
+    --radius-lg:  22px;
+    --radius-md:  14px;
+    --shadow:     0 10px 26px rgba(0,0,0,0.06);
+  }
+
+  *{ box-sizing:border-box; }
+
+  html,body{
+    margin:0; padding:0; min-height:100%;
+    font-family: 'Segoe UI', 'Poppins', system-ui, -apple-system, sans-serif;
+    background: var(--bg-light);
+    color: var(--card-text);
+  }
+
+  body{
+    background-image:
+      linear-gradient(rgba(244,241,232,0.09), rgba(244,241,232,0.09)),
+      url('background.png');
+    background-size: cover, cover;
+    background-position: center, center;
+    background-repeat: no-repeat, no-repeat;
+    background-attachment: fixed, fixed;
+  }
+
+  /* ---------------- top bar ---------------- */
+  .topbar{
+    display:flex; align-items:center; gap:14px;
+    padding: 22px 26px;
+    background-color: var(--bg-panel);
+    background-image:
+      linear-gradient(rgba(255,255,255,0.1), rgba(255,255,255,0.1)),
+      url('header.png');
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    border-bottom: 2px solid rgba(0,0,0,0.06);
+    box-shadow: 0 2px 8px rgba(0,0,0,0.03);
+  }
+  .back-btn{
+    display:flex; align-items:center; justify-content:center;
+    width:48px; height:48px; border-radius:50%;
+    background: rgba(0,0,0,0.05);
+    color: var(--card-text); text-decoration:none; font-size:1.5rem;
+    border: 2px solid rgba(0,0,0,0.1);
+    flex-shrink:0;
+  }
+  .back-btn:active{ background: rgba(0,0,0,0.12); }
+
+  .topbar-titles{ flex:1; min-width:0; }
+  .eyebrow{
+    text-transform:uppercase; letter-spacing:1.5px;
+    font-size:0.75rem; font-weight:700; color: var(--brand);
+    margin:0 0 4px;
+  }
+  .page-title{ margin:0; font-size: clamp(1.4rem, 5vw, 1.9rem); font-weight:800; color: var(--card-text); }
+
+  /* ---------------- intro strip ---------------- */
+  .intro{
+    max-width: 900px; margin: 22px auto 6px; padding: 0 22px;
+    font-size: clamp(1rem, 3vw, 1.15rem); color: var(--muted); line-height:1.5;
+  }
+
+  /* ---------------- game grid ---------------- */
+  .grid-wrap{ max-width: 980px; margin: 0 auto; padding: 18px 22px 60px; }
+  .game-grid{
+    display:grid;
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+    gap: 22px;
+  }
+
+  .game-card{
+    background: var(--card);
+    color: var(--card-text);
+    border-radius: var(--radius-lg);
+    padding: 20px;
+    display:flex; flex-direction:column; align-items:center;
+    text-align:center;
+    text-decoration:none;
+    box-shadow: var(--shadow);
+    border: 3px solid transparent;
+    transition: transform .15s ease, border-color .15s ease;
+    cursor:pointer;
+  }
+  .game-card:hover, .game-card:focus-visible{
+    transform: translateY(-4px);
+    border-color: var(--gold);
+    outline:none;
+  }
+  .game-card:active{ transform: translateY(-1px) scale(0.98); }
+
+  .game-icon-wrap{
+    width: 120px; height: 120px;
+    border-radius: var(--radius-md);
+    overflow:hidden;
+    background: var(--brand);
+    display:flex; align-items:center; justify-content:center;
+    margin-bottom: 16px;
+    border: 3px solid rgba(0,0,0,0.08);
+  }
+  .game-icon-wrap img{
+    width:100%; height:100%; object-fit:cover; display:block;
+  }
+  .game-icon-wrap svg{ width:56px; height:56px; }
+
+  .game-name{
+    font-size: 1.25rem; font-weight:800; margin: 0 0 6px; color: var(--card-text);
+  }
+  .game-desc{
+    font-size: 0.95rem; color: var(--muted); margin:0 0 16px; line-height:1.4;
+  }
+
+  .play-pill{
+    margin-top:auto;
+    padding: 10px 26px;
+    border-radius: 999px;
+    background: var(--brand);
+    color:#fff; font-weight:800; font-size:1rem;
+    letter-spacing: 0.3px;
+  }
+  .game-card:hover .play-pill{ background: var(--brand-2); }
+
+  /* placeholder tag for games still in progress */
+  .badge-soon{
+    position:relative; top:-4px;
+    font-size:0.68rem; font-weight:800; text-transform:uppercase;
+    letter-spacing:0.6px; color:#fff; background: var(--danger);
+    padding: 3px 9px; border-radius: 999px; margin-bottom:8px;
+  }
+
+  @media (prefers-reduced-motion: reduce){
+    .game-card{ transition:none; }
+  }
+</style>
+
+<script src="api-config.js"></script>
+<script src="monorom-core.js"></script>
+<script src="monorom-language.js"></script>
+</head>
+<body>
+
+  <div class="topbar">
+    <a class="back-btn" href="index.html" aria-label="Back to home">←</a>
+    <div class="topbar-titles">
+      <p class="eyebrow">Assisted Care Platform</p>
+      <h1 class="page-title">Brain Exercises</h1>
+    </div>
+  </div>
+
+  <p class="intro">Choose a game below to begin. Each one is gentle, calm, and designed to help with memory and focus — take your time.</p>
+
+  <div class="grid-wrap">
+    <div class="game-grid" id="gameGrid"></div>
+  </div>
+
+<script>
+  /* =====================================================================
+     GAME CATALOG
+     ===================================================================== */
+  const GAMES = [
+    {
+      id: "ball_sort",
+      name: "Ball Sort Puzzle",
+      desc: "Sort the colourful balls into matching tubes.",
+      logo: "Game logo/ball_sort_logo.jpg",
+      link: "ball_sort/ball_sort_puzzle.html"
+    },
+    {
+      id: "gentle_snake",
+      name: "Gentle Snake",
+      desc: "A calm journey through the hills and rivers of the Northeast.",
+      logo: "Game logo/grntle_snake_logo.jpg",
+      link: "gentle_snake/gentle_snake.html"
+    },
+    {
+      id: "seven_sister",
+      name: "Seven Sister Seek",
+      desc: "Explore and discover the beauty of the Seven Sister states.",
+      logo: "Game logo/seven_sister_logo.jpg",
+      link: "Seven_sister/seven_sisters_seek.html"
+    },
+    {
+      id: "void_breach",
+      name: "Void Breach",
+      desc: "An engaging 3D arcade challenge through the cosmic void.",
+      logo: "Game logo/void_breach_logo.jpg",
+      link: "void_breach/void_breach.html"
+    }
+  ];
+
+  const genericIconSVG = `
+    <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <rect x="2" y="7" width="20" height="10" rx="5" fill="#ffffff" fill-opacity="0.18"/>
+      <circle cx="8" cy="12" r="1.6" fill="#ffffff"/>
+      <circle cx="6" cy="12" r="1.6" fill="#ffffff" opacity="0"/>
+      <path d="M6.5 12h3M8 10.5v3" stroke="#ffffff" stroke-width="1.4" stroke-linecap="round"/>
+      <circle cx="16" cy="10.5" r="1.3" fill="#ffffff"/>
+      <circle cx="18.2" cy="12.8" r="1.3" fill="#ffffff"/>
+    </svg>`;
+
+  const grid = document.getElementById("gameGrid");
+
+  GAMES.forEach(game => {
+    const card = document.createElement("a");
+    card.className = "game-card";
+    card.href = game.link;
+    card.setAttribute("aria-label", "Play " + game.name);
+
+    const iconHTML = game.logo
+      ? `<img src="${game.logo}" alt="${game.name} icon">`
+      : genericIconSVG;
+
+    card.innerHTML = `
+      ${game.comingSoon ? '<span class="badge-soon">In progress</span>' : ''}
+      <div class="game-icon-wrap">${iconHTML}</div>
+      <h2 class="game-name">${game.name}</h2>
+      <p class="game-desc">${game.desc}</p>
+      <span class="play-pill">Play</span>
+    `;
+
+    grid.appendChild(card);
+  });
+</script>
+</body>
+</html>

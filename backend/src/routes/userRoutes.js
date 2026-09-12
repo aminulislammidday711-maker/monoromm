@@ -1,0 +1,1 @@
+import {Router} from 'express'; import {me,updateMe} from '../controllers/userController.js'; import {requireAuth} from '../middleware/auth.js'; const r=Router(); r.use(requireAuth); r.get('/me',me); r.put('/me',updateMe); export default r;

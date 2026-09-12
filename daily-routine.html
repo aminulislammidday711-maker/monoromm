@@ -1,0 +1,1412 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=2.0">
+<title>My Daily Routine</title>
+<style>
+  :root {
+    --forest: #2D5F4F;
+    --forest-dark: #1F4438;
+    --gold: #C89B3C;
+    --gold-light: #E8C97A;
+    --cream: #FBF6EC;
+    --card: #FFFFFF;
+    --ink: #23302B;
+    --ink-soft: #4B5A54;
+    --river: #4C7C93;
+    --terracotta: #B5533C;
+    --line: #E1D8C2;
+    --focus: #1F4438;
+    --radius: 18px;
+  }
+
+  * { box-sizing: border-box; }
+
+  html, body {
+    margin: 0;
+    padding: 0;
+    background: var(--cream);
+    color: var(--ink);
+    font-family: "Segoe UI", "Noto Sans", "Noto Sans Devanagari", "Noto Sans Bengali", Verdana, Arial, sans-serif;
+    font-size: 20px;
+    line-height: 1.5;
+  }
+
+  body {
+    background-image: url('background.png');
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    background-attachment: fixed;
+  }
+
+  button { font-family: inherit; }
+
+  a:focus-visible, button:focus-visible, select:focus-visible, input:focus-visible, [tabindex]:focus-visible {
+    outline: 4px solid var(--focus);
+    outline-offset: 3px;
+  }
+
+  /* ---------- Header ---------- */
+  header {
+    background: linear-gradient(120deg, var(--forest) 0%, var(--forest-dark) 100%);
+    color: #fff;
+    padding: 22px 24px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 14px;
+    border-bottom: 6px solid var(--gold);
+    position: sticky;
+    top: 0;
+    z-index: 20;
+  }
+
+  .brand { display: flex; align-items: center; gap: 14px; }
+
+  .back-btn-round {
+    display:flex; align-items:center; justify-content:center;
+    width:48px; height:48px; border-radius:50%;
+    background: rgba(255,255,255,0.12);
+    color:#fff; text-decoration:none; font-size:1.5rem;
+    border: 2px solid rgba(255,255,255,0.3);
+    flex-shrink:0;
+  }
+  .back-btn-round:active { background: rgba(255,255,255,0.25); }
+
+  .brand-mark {
+    width: 54px; height: 54px; border-radius: 14px;
+    background: var(--gold);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 28px; flex-shrink: 0;
+  }
+
+  .brand h1 { margin: 0; font-size: 1.5rem; letter-spacing: 0.3px; }
+  .brand p { margin: 2px 0 0; font-size: 1rem; color: var(--gold-light); }
+
+  .clock-pill {
+    background: rgba(255,255,255,0.14);
+    border: 1px solid rgba(255,255,255,0.3);
+    border-radius: 999px; padding: 8px 18px; font-size: 1.1rem; white-space: nowrap;
+  }
+
+  /* ---------- Layout ---------- */
+  main { max-width: 980px; margin: 0 auto; padding: 24px 18px 80px; }
+
+  .greeting {
+    background: var(--card);
+    border: 1px solid var(--line);
+    border-left: 10px solid var(--river);
+    border-radius: var(--radius);
+    padding: 20px 22px;
+    margin-bottom: 22px;
+  }
+  .greeting h2 { margin: 0 0 4px; font-size: 1.5rem; color: var(--forest-dark); }
+  .greeting p { margin: 0; color: var(--ink-soft); font-size: 1.1rem; }
+
+  .motif {
+    height: 10px;
+    background-image: repeating-linear-gradient(45deg, var(--gold) 0, var(--gold) 10px, var(--forest) 10px, var(--forest) 20px);
+    opacity: 0.5;
+    border-radius: 6px;
+    margin: 0 0 22px;
+  }
+
+  /* ---------- Screens / navigation (GPU-friendly transitions) ---------- */
+  .screen { display: none; }
+  .screen.active {
+    display: block;
+    animation: screenIn 220ms ease both;
+  }
+  @keyframes screenIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .screen.active { animation: none; }
+  }
+
+  /* ---------- Home menu ---------- */
+  .home-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+    gap: 18px;
+  }
+  .home-card {
+    background: var(--card);
+    border: 2px solid var(--line);
+    border-radius: 20px;
+    padding: 26px 22px;
+    display: flex;
+    align-items: center;
+    gap: 18px;
+    cursor: pointer;
+    text-align: left;
+    width: 100%;
+    transition: transform 120ms ease, box-shadow 120ms ease, border-color 120ms ease;
+    will-change: transform;
+  }
+  .home-card:hover, .home-card:focus-visible { transform: translateY(-3px); border-color: var(--forest); box-shadow: 0 8px 20px rgba(31,68,56,0.12); }
+  .home-card:active { transform: translateY(0px) scale(0.99); }
+  .home-icon {
+    width: 64px; height: 64px; border-radius: 16px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 32px; color: #fff; flex-shrink: 0;
+  }
+  .home-card h3 { margin: 0 0 4px; font-size: 1.35rem; color: var(--forest-dark); }
+  .home-card p { margin: 0; font-size: 1rem; color: var(--ink-soft); }
+  .home-badge {
+    margin-left: auto;
+    background: var(--terracotta);
+    color: #fff;
+    border-radius: 999px;
+    font-size: 0.9rem;
+    font-weight: 700;
+    padding: 4px 12px;
+    flex-shrink: 0;
+    display: none;
+  }
+  .home-badge.show { display: inline-block; }
+
+  /* ---------- Section card ---------- */
+  section.card, .panel {
+    background: var(--card);
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+    padding: 22px;
+    margin-bottom: 24px;
+    box-shadow: 0 2px 0 var(--line);
+  }
+
+  .back-row { display: flex; align-items: center; gap: 14px; margin-bottom: 18px; }
+  .back-btn {
+    background: var(--card);
+    border: 2px solid var(--forest);
+    color: var(--forest-dark);
+    border-radius: 12px;
+    padding: 10px 18px;
+    font-size: 1.05rem;
+    font-weight: 700;
+    cursor: pointer;
+    min-height: 48px;
+  }
+
+  .section-head { display: flex; align-items: center; gap: 14px; margin-bottom: 16px; }
+  .section-icon {
+    width: 52px; height: 52px; border-radius: 14px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 26px; flex-shrink: 0; color: #fff;
+  }
+  .icon-med { background: var(--terracotta); }
+  .icon-water { background: var(--river); }
+  .icon-activity { background: var(--forest); }
+  .icon-appt { background: var(--gold); color: var(--forest-dark); }
+  .icon-report { background: var(--forest-dark); }
+
+  .section-head h2 { margin: 0; font-size: 1.4rem; color: var(--forest-dark); }
+  .section-head .sub { margin: 2px 0 0; font-size: 1rem; color: var(--ink-soft); }
+
+  /* ---------- Buttons ---------- */
+  .btn {
+    display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+    border: none; border-radius: 14px; padding: 16px 22px;
+    font-size: 1.15rem; font-weight: 600; cursor: pointer; min-height: 56px;
+    transition: transform 0.08s ease;
+  }
+  .btn:active { transform: scale(0.97); }
+  .btn-primary { background: var(--forest); color: #fff; }
+  .btn-primary:hover { background: var(--forest-dark); }
+  .btn-gold { background: var(--gold); color: var(--forest-dark); }
+  .btn-outline { background: #fff; color: var(--forest-dark); border: 2px solid var(--forest); }
+  .btn-danger { background: var(--terracotta); color: #fff; }
+  .btn-block { width: 100%; }
+  .btn-sm { padding: 10px 16px; font-size: 1rem; min-height: 44px; }
+
+  /* ---------- Form rows ---------- */
+  .form-row { display: flex; gap: 12px; flex-wrap: wrap; align-items: center; margin-bottom: 14px; }
+  .form-row label { font-size: 1.05rem; color: var(--ink-soft); min-width: 120px; }
+  input[type="text"], input[type="time"], input[type="date"], select.field {
+    font-size: 1.1rem; padding: 12px 14px; border-radius: 12px;
+    border: 2px solid var(--line); background: #fffdf9; color: var(--ink);
+    min-height: 52px; flex: 1; min-width: 160px;
+  }
+
+  /* ---------- Medicine preset slots ---------- */
+  .slot-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 14px;
+    margin-bottom: 18px;
+  }
+  .slot-card {
+    background: #FFFBF3;
+    border: 2px solid var(--line);
+    border-radius: 16px;
+    padding: 16px;
+    cursor: pointer;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    transition: border-color 120ms ease, background 120ms ease;
+  }
+  .slot-card.selected { border-color: var(--forest); background: #E9F2ED; }
+  .slot-top { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
+  .slot-emoji { font-size: 1.6rem; }
+  .slot-time { font-size: 1rem; color: var(--ink-soft); }
+  .slot-name { font-size: 1.15rem; font-weight: 700; color: var(--forest-dark); }
+  .slot-checkbox {
+    width: 30px; height: 30px; border-radius: 8px;
+    border: 2px solid var(--forest); flex-shrink: 0;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 1.1rem; color: #fff; background: #fff;
+  }
+  .slot-card.selected .slot-checkbox { background: var(--forest); }
+
+  .slot-name-input {
+    font-size: 1.05rem; padding: 10px 12px; border-radius: 10px;
+    border: 2px solid var(--line); background: #fff; min-height: 46px;
+    display: none;
+  }
+  .slot-card.selected .slot-name-input { display: block; }
+
+  /* ---------- Active reminders list ---------- */
+  .item-list { display: flex; flex-direction: column; gap: 12px; margin-top: 6px; }
+  .med-item, .appt-item {
+    display: flex; align-items: center; justify-content: space-between; gap: 14px;
+    background: #FFFBF3; border: 2px solid var(--line); border-radius: 14px;
+    padding: 14px 16px; flex-wrap: wrap;
+  }
+  .med-item.due {
+    border-color: var(--terracotta); background: #FBEAE4;
+    animation: pulse 1.4s ease-in-out infinite;
+  }
+  @keyframes pulse {
+    0%, 100% { box-shadow: 0 0 0 0 rgba(181,83,60,0.35); }
+    50% { box-shadow: 0 0 0 10px rgba(181,83,60,0); }
+  }
+  .med-info { display: flex; flex-direction: column; gap: 2px; }
+  .med-name { font-size: 1.2rem; font-weight: 700; color: var(--forest-dark); }
+  .med-time { font-size: 1.05rem; color: var(--ink-soft); }
+  .med-actions { display: flex; gap: 10px; flex-wrap: wrap; }
+  .taken-tag { background: var(--forest); color: #fff; padding: 6px 14px; border-radius: 999px; font-size: 0.95rem; }
+  .missed-tag { background: var(--terracotta); color: #fff; padding: 6px 14px; border-radius: 999px; font-size: 0.95rem; }
+
+  /* ---------- Hydration ---------- */
+  .hydration-box { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 18px; }
+  .switch { position: relative; width: 72px; height: 40px; flex-shrink: 0; }
+  .switch input { opacity: 0; width: 0; height: 0; }
+  .slider { position: absolute; cursor: pointer; inset: 0; background: #cfc4a8; border-radius: 999px; transition: .2s; }
+  .slider::before {
+    content: ""; position: absolute; height: 32px; width: 32px; left: 4px; top: 4px;
+    background: #fff; border-radius: 50%; transition: .2s;
+  }
+  input:checked + .slider { background: var(--river); }
+  input:checked + .slider::before { transform: translateX(32px); }
+
+  .water-progress-wrap {
+    background: #EFEADA; border-radius: 999px; height: 22px; overflow: hidden;
+    margin-top: 14px; border: 1px solid var(--line);
+  }
+  .water-progress-fill { height: 100%; background: linear-gradient(90deg, var(--river), #7FB2C9); width: 0%; transition: width 0.4s ease; }
+  .water-status { margin-top: 10px; font-size: 1.05rem; color: var(--ink-soft); }
+  .water-alert-banner {
+    margin-top: 14px; background: #E4F0F4; border: 2px solid var(--river); color: var(--forest-dark);
+    padding: 14px 16px; border-radius: 14px; font-size: 1.15rem; font-weight: 600;
+    display: none; align-items: center; gap: 10px;
+  }
+  .water-alert-banner.show { display: flex; }
+
+  /* ---------- Activities ---------- */
+  .activity-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 14px; }
+  .activity-card {
+    background: #FFFBF3; border: 2px solid var(--line); border-radius: 16px; padding: 18px;
+    display: flex; flex-direction: column; align-items: center; gap: 10px;
+    text-align: center; cursor: pointer; user-select: none;
+  }
+  .activity-card .emoji { font-size: 2.4rem; }
+  .activity-card .label { font-size: 1.15rem; font-weight: 600; color: var(--ink); }
+  .activity-card.done { background: var(--forest); border-color: var(--forest-dark); }
+  .activity-card.done .label { color: #fff; }
+  .activity-card .check-badge { font-size: 1.6rem; color: var(--forest); }
+  .activity-card.done .check-badge { color: var(--gold-light); }
+  .progress-line { margin-top: 16px; font-size: 1.1rem; color: var(--ink-soft); text-align: center; }
+
+  /* ---------- Appointments ---------- */
+  .appt-item { align-items: center; }
+  .appt-info { display: flex; flex-direction: column; gap: 2px; }
+  .appt-name { font-size: 1.2rem; font-weight: 700; color: var(--forest-dark); }
+  .appt-date { font-size: 1.05rem; color: var(--ink-soft); }
+  .appt-badge { padding: 8px 16px; border-radius: 999px; font-weight: 700; font-size: 1rem; white-space: nowrap; }
+  .badge-today { background: var(--terracotta); color: #fff; }
+  .badge-soon { background: var(--gold); color: var(--forest-dark); }
+  .badge-later { background: #E4EFE9; color: var(--forest-dark); }
+
+  /* ---------- Report ---------- */
+  .report-item {
+    display: flex; align-items: center; justify-content: space-between; gap: 12px;
+    background: #FBEAE4; border: 2px solid var(--terracotta); border-radius: 14px;
+    padding: 14px 16px; margin-bottom: 12px; flex-wrap: wrap;
+  }
+  .report-info { display: flex; flex-direction: column; gap: 2px; }
+  .report-name { font-size: 1.15rem; font-weight: 700; color: var(--terracotta); }
+  .report-meta { font-size: 1rem; color: var(--ink-soft); }
+
+  .empty { text-align: center; color: var(--ink-soft); padding: 18px; font-size: 1.05rem; }
+
+  footer { text-align: center; color: var(--ink-soft); font-size: 0.95rem; padding: 20px; }
+
+  /* ---------- Confirmation modal ---------- */
+  .modal-overlay {
+    position: fixed; inset: 0; background: rgba(35,48,43,0.55);
+    display: none; align-items: center; justify-content: center;
+    z-index: 100; padding: 20px;
+  }
+  .modal-overlay.show { display: flex; }
+  .modal-box {
+    background: #fff; border-radius: 20px; padding: 28px 26px;
+    max-width: 440px; width: 100%; text-align: center;
+    box-shadow: 0 20px 50px rgba(0,0,0,0.25);
+    animation: modalIn 160ms ease both;
+  }
+  @keyframes modalIn {
+    from { opacity: 0; transform: scale(0.94); }
+    to   { opacity: 1; transform: scale(1); }
+  }
+  .modal-box p { font-size: 1.2rem; color: var(--ink); margin: 0 0 22px; }
+  .modal-actions { display: flex; gap: 14px; justify-content: center; }
+
+  @media (max-width: 560px) {
+    body { font-size: 18px; }
+    .brand h1 { font-size: 1.25rem; }
+    .form-row label { min-width: 100%; }
+  }
+</style>
+
+<script src="api-config.js"></script>
+<script src="monorom-core.js"></script>
+<script src="monorom-language.js"></script>
+</head>
+<body>
+
+<header>
+  <div class="brand">
+    <a class="back-btn-round" href="index.html" aria-label="Back to home">←</a>
+    <div class="brand-mark">🌿</div>
+    <div>
+      <h1 data-i18n="appTitle">My Daily Routine</h1>
+      <p data-i18n="appSubtitle">Monorom Memory Companion</p>
+    </div>
+  </div>
+  <div style="display:flex; align-items:center; gap:14px; flex-wrap:wrap;">
+    <div class="clock-pill" id="clockPill">--:--</div>
+  </div>
+</header>
+
+<main>
+
+  <div class="greeting">
+    <h2 id="greetingText">Good Morning</h2>
+    <p data-i18n="greetingSub">Here is what's planned for you today.</p>
+  </div>
+
+  <div class="motif"></div>
+
+  <!-- ===================== HOME SCREEN ===================== -->
+  <div class="screen active" id="screen-home">
+    <div class="home-grid">
+      <button class="home-card" onclick="goTo('medicine')">
+        <div class="home-icon icon-med">💊</div>
+        <div>
+          <h3 data-i18n="medTitle">Medicine Reminder</h3>
+          <p data-i18n="medSub">Set reminders so doses are never missed</p>
+        </div>
+        <span class="home-badge" id="homeMedBadge"></span>
+      </button>
+
+      <button class="home-card" onclick="goTo('hydration')">
+        <div class="home-icon icon-water">💧</div>
+        <div>
+          <h3 data-i18n="waterTitle">Hydration Alert</h3>
+          <p data-i18n="waterSub">Reminders to drink water through the day</p>
+        </div>
+      </button>
+
+      <button class="home-card" onclick="goTo('activities')">
+        <div class="home-icon icon-activity">✅</div>
+        <div>
+          <h3 data-i18n="activityTitle">Today's Activities</h3>
+          <p data-i18n="activitySub">Tap each one after you finish it</p>
+        </div>
+      </button>
+
+      <button class="home-card" onclick="goTo('appointments')">
+        <div class="home-icon icon-appt">🗓️</div>
+        <div>
+          <h3 data-i18n="apptTitle">Medical Appointments</h3>
+          <p data-i18n="apptSub">Keep track of doctor visits</p>
+        </div>
+      </button>
+    </div>
+  </div>
+
+  <!-- ===================== MEDICINE SCREEN ===================== -->
+  <div class="screen" id="screen-medicine">
+    <div class="back-row">
+      <button class="back-btn" onclick="goTo('home')" data-i18n="backBtn">← Back</button>
+    </div>
+    <section class="card">
+      <div class="section-head">
+        <div class="section-icon icon-med">💊</div>
+        <div>
+          <h2 data-i18n="medTitle">Medicine Reminder</h2>
+          <p class="sub" data-i18n="medSelectSub">Select the times your doctor told you to take medicine</p>
+        </div>
+      </div>
+
+      <div class="slot-grid" id="slotGrid"></div>
+
+      <div class="item-list" id="medList"></div>
+      <div class="empty" id="medEmpty" data-i18n="medEmpty">No reminder times selected yet. Choose one above.</div>
+
+      <div class="form-row" style="margin-top:18px; gap:14px;">
+        <button class="btn btn-outline" id="resetMedBtn" data-i18n="resetBtn">Reset Medicine Reminders</button>
+        <button class="btn btn-gold" id="viewReportBtn" data-i18n="viewReport">View Missed Doses Report</button>
+      </div>
+    </section>
+  </div>
+
+  <!-- ===================== REPORT SCREEN ===================== -->
+  <div class="screen" id="screen-report">
+    <div class="back-row">
+      <button class="back-btn" onclick="goTo('medicine')" data-i18n="backBtn">← Back</button>
+    </div>
+    <section class="card">
+      <div class="section-head">
+        <div class="section-icon icon-report">📋</div>
+        <div>
+          <h2 data-i18n="reportTitle">Report</h2>
+          <p class="sub" data-i18n="reportSub">A permanent record of medicine doses that were missed</p>
+        </div>
+      </div>
+
+      <div id="reportList"></div>
+      <div class="empty" id="reportEmpty" data-i18n="reportEmpty">No missed doses recorded. Well done!</div>
+
+      <div class="form-row" style="margin-top:18px;">
+        <button class="btn btn-danger" id="eraseReportBtn" data-i18n="eraseDataBtn">Erase Report Data</button>
+      </div>
+    </section>
+  </div>
+
+  <!-- ===================== HYDRATION SCREEN ===================== -->
+  <div class="screen" id="screen-hydration">
+    <div class="back-row">
+      <button class="back-btn" onclick="goTo('home')" data-i18n="backBtn">← Back</button>
+    </div>
+    <section class="card">
+      <div class="section-head">
+        <div class="section-icon icon-water">💧</div>
+        <div>
+          <h2 data-i18n="waterTitle">Hydration Alert</h2>
+          <p class="sub" data-i18n="waterSub2">Gentle reminders to drink water like the Brahmaputra flows — steady and often</p>
+        </div>
+      </div>
+
+      <div class="hydration-box">
+        <div style="display:flex; align-items:center; gap:14px;">
+          <label class="switch">
+            <input type="checkbox" id="waterToggle">
+            <span class="slider"></span>
+          </label>
+          <span id="waterToggleLabel" style="font-size:1.15rem; font-weight:600;" data-i18n="waterOff">Reminders Off</span>
+        </div>
+
+        <div class="form-row" style="margin:0;">
+          <label for="waterFreq" data-i18n="waterFreqLabel">Remind every</label>
+          <select class="field" id="waterFreq">
+            <option value="30">30 <span data-i18n-inline="mins">mins</span></option>
+            <option value="60" selected>1 <span data-i18n-inline="hour">hour</span></option>
+            <option value="120">2 <span data-i18n-inline="hours">hours</span></option>
+          </select>
+        </div>
+      </div>
+
+      <div class="water-progress-wrap">
+        <div class="water-progress-fill" id="waterProgressFill"></div>
+      </div>
+      <div class="water-status" id="waterStatus" data-i18n="waterIdle">Turn on reminders to start tracking.</div>
+
+      <div class="water-alert-banner" id="waterBanner">
+        <span>💧</span>
+        <span data-i18n="waterAlertText">Time to drink a glass of water!</span>
+        <button class="btn btn-outline btn-sm" id="waterDismissBtn" data-i18n="drankItBtn" style="margin-left:auto;">I Drank Water</button>
+      </div>
+    </section>
+  </div>
+
+  <!-- ===================== ACTIVITIES SCREEN ===================== -->
+  <div class="screen" id="screen-activities">
+    <div class="back-row">
+      <button class="back-btn" onclick="goTo('home')" data-i18n="backBtn">← Back</button>
+    </div>
+    <section class="card">
+      <div class="section-head">
+        <div class="section-icon icon-activity">✅</div>
+        <div>
+          <h2 data-i18n="activityTitle">Today's Activities</h2>
+          <p class="sub" data-i18n="activitySub">Tap each one after you finish it</p>
+        </div>
+      </div>
+
+      <div class="activity-grid" id="activityGrid"></div>
+      <div class="progress-line" id="activityProgress"></div>
+      <div style="text-align:center; margin-top:16px;">
+        <button class="btn btn-outline btn-sm" id="resetActivitiesBtn" data-i18n="resetDay">Reset for a New Day</button>
+      </div>
+    </section>
+  </div>
+
+  <!-- ===================== APPOINTMENTS SCREEN ===================== -->
+  <div class="screen" id="screen-appointments">
+    <div class="back-row">
+      <button class="back-btn" onclick="goTo('home')" data-i18n="backBtn">← Back</button>
+    </div>
+    <section class="card">
+      <div class="section-head">
+        <div class="section-icon icon-appt">🗓️</div>
+        <div>
+          <h2 data-i18n="apptTitle">Medical Appointments</h2>
+          <p class="sub" data-i18n="apptSub">Keep track of doctor visits</p>
+        </div>
+      </div>
+
+      <div class="form-row">
+        <label for="apptName" data-i18n="apptNameLabel">Doctor / Reason</label>
+        <input type="text" id="apptName" placeholder="e.g. Dr. Sharma - Checkup">
+      </div>
+      <div class="form-row">
+        <label for="apptDate" data-i18n="apptDateLabel">Date</label>
+        <input type="date" id="apptDate">
+        <button class="btn btn-primary" id="addApptBtn" data-i18n="addBtn">Add Reminder</button>
+      </div>
+
+      <div class="item-list" id="apptList"></div>
+      <div class="empty" id="apptEmpty" data-i18n="apptEmpty">No appointments scheduled yet.</div>
+    </section>
+  </div>
+
+</main>
+
+<footer data-i18n="footerText">Monorom Memory Companion — made with care for families across the Northeast</footer>
+
+<!-- ===================== CONFIRMATION MODAL ===================== -->
+<div class="modal-overlay" id="modalOverlay">
+  <div class="modal-box">
+    <p id="modalMessage">Are you sure?</p>
+    <div class="modal-actions">
+      <button class="btn btn-outline" id="modalCancelBtn" data-i18n="noBtn">No</button>
+      <button class="btn btn-danger" id="modalConfirmBtn" data-i18n="yesBtn">Yes</button>
+    </div>
+  </div>
+</div>
+
+<script>
+/* ===================== TRANSLATIONS ===================== */
+const translations = {
+  en: {
+    appTitle: "My Daily Routine",
+    appSubtitle: "Monorom Memory Companion",
+    greetingSub: "Here is what's planned for you today.",
+    goodMorning: "Good Morning", goodAfternoon: "Good Afternoon", goodEvening: "Good Evening",
+    backBtn: "← Back",
+    medTitle: "Medicine Reminder",
+    medSub: "Set reminders so doses are never missed",
+    medSelectSub: "Select the times your doctor told you to take medicine",
+    medNamePlaceholder: "Medicine name (optional)",
+    medEmpty: "No reminder times selected yet. Choose one above.",
+    dueNow: "Due now!",
+    takeBtn: "Mark as Taken",
+    takenTag: "Taken today",
+    missedTag: "Missed today",
+    resetBtn: "Reset Medicine Reminders",
+    resetConfirmMsg: "This will clear all selected medicine times and names. Continue?",
+    viewReport: "View Missed Doses Report",
+    reportTitle: "Report",
+    reportSub: "A permanent record of medicine doses that were missed",
+    reportEmpty: "No missed doses recorded. Well done!",
+    eraseDataBtn: "Erase Report Data",
+    eraseConfirmMsg: "This will permanently delete all missed-dose records. Continue?",
+    deleteConfirmMsg: "Are you sure you want to delete this?",
+    yesBtn: "Yes", noBtn: "No",
+    addBtn: "Add Reminder",
+    deleteBtn: "Delete",
+    slotMorning: "Morning", slotAfternoon: "Afternoon", slotEvening: "Evening", slotNight: "Night",
+    waterTitle: "Hydration Alert",
+    waterSub: "Reminders to drink water through the day",
+    waterSub2: "Gentle reminders to drink water like the Brahmaputra flows — steady and often",
+    waterOn: "Reminders On",
+    waterOff: "Reminders Off",
+    waterFreqLabel: "Remind every",
+    mins: "mins", hour: "hour", hours: "hours",
+    waterIdle: "Turn on reminders to start tracking.",
+    waterCounting: "Next reminder in",
+    waterAlertText: "Time to drink a glass of water!",
+    drankItBtn: "I Drank Water",
+    activityTitle: "Today's Activities",
+    activitySub: "Tap each one after you finish it",
+    resetDay: "Reset for a New Day",
+    resetActivityConfirmMsg: "This will clear today's completed activities. Continue?",
+    progressText: "completed today",
+    apptTitle: "Medical Appointments",
+    apptSub: "Keep track of doctor visits",
+    apptNameLabel: "Doctor / Reason",
+    apptDateLabel: "Date",
+    apptEmpty: "No appointments scheduled yet.",
+    apptToday: "TODAY",
+    apptSoon: "days left",
+    apptPast: "Completed",
+    footerText: "Monorom Memory Companion — made with care for families across the Northeast",
+    activities: ["Morning Tea", "Breakfast", "Morning Walk", "Take Bath", "Lunch", "Rest / Nap", "Memory Game", "Evening Snacks", "Family Time", "Dinner", "Night Medicine", "Sleep Time"]
+  },
+  hi: {
+    appTitle: "मेरी दैनिक दिनचर्या",
+    appSubtitle: "मनोरम मेमोरी कंपेनियन",
+    greetingSub: "आज के लिए यह योजना है।",
+    goodMorning: "सुप्रभात", goodAfternoon: "नमस्कार", goodEvening: "शुभ संध्या",
+    backBtn: "← वापस",
+    medTitle: "दवा अनुस्मारक",
+    medSub: "याद दिलाएं ताकि कोई खुराक न छूटे",
+    medSelectSub: "डॉक्टर द्वारा बताए गए समय चुनें",
+    medNamePlaceholder: "दवा का नाम (वैकल्पिक)",
+    medEmpty: "अभी कोई समय चुना नहीं गया। ऊपर से चुनें।",
+    dueNow: "अभी लेनी है!",
+    takeBtn: "ली हुई चिह्नित करें",
+    takenTag: "आज ली गई",
+    missedTag: "आज छूट गई",
+    resetBtn: "दवा अनुस्मारक रीसेट करें",
+    resetConfirmMsg: "यह सभी चुने गए समय और नाम हटा देगा। जारी रखें?",
+    viewReport: "छूटी हुई खुराकों की रिपोर्ट देखें",
+    reportTitle: "रिपोर्ट",
+    reportSub: "छूटी हुई दवाओं का स्थायी रिकॉर्ड",
+    reportEmpty: "कोई छूटी हुई खुराक दर्ज नहीं है। बहुत बढ़िया!",
+    eraseDataBtn: "रिपोर्ट डेटा मिटाएं",
+    eraseConfirmMsg: "यह सभी छूटी हुई खुराक के रिकॉर्ड स्थायी रूप से हटा देगा। जारी रखें?",
+    deleteConfirmMsg: "क्या आप वाकई इसे हटाना चाहते हैं?",
+    yesBtn: "हां", noBtn: "नहीं",
+    addBtn: "याद दिलाना जोड़ें",
+    deleteBtn: "हटाएं",
+    slotMorning: "सुबह", slotAfternoon: "दोपहर", slotEvening: "शाम", slotNight: "रात",
+    waterTitle: "पानी पीने की याद",
+    waterSub: "दिन भर पानी पीने की याद",
+    waterSub2: "ब्रह्मपुत्र की तरह — नियमित और शांत रूप से पानी पिएं",
+    waterOn: "याद दिलाना चालू",
+    waterOff: "याद दिलाना बंद",
+    waterFreqLabel: "हर इतने समय पर याद दिलाएं",
+    mins: "मिनट", hour: "घंटा", hours: "घंटे",
+    waterIdle: "ट्रैक करना शुरू करने के लिए चालू करें।",
+    waterCounting: "अगली याद दिलाने का समय",
+    waterAlertText: "एक गिलास पानी पीने का समय हो गया है!",
+    drankItBtn: "मैंने पानी पी लिया",
+    activityTitle: "आज की गतिविधियां",
+    activitySub: "पूरा करने के बाद हर एक पर टैप करें",
+    resetDay: "नए दिन के लिए रीसेट करें",
+    resetActivityConfirmMsg: "यह आज की पूरी हुई गतिविधियां मिटा देगा। जारी रखें?",
+    progressText: "आज पूरा हुआ",
+    apptTitle: "डॉक्टर की नियुक्तियां",
+    apptSub: "डॉक्टर से मिलने की तारीखें याद रखें",
+    apptNameLabel: "डॉक्टर / कारण",
+    apptDateLabel: "तारीख",
+    apptEmpty: "अभी कोई नियुक्ति निर्धारित नहीं है।",
+    apptToday: "आज",
+    apptSoon: "दिन बाकी",
+    apptPast: "पूर्ण",
+    footerText: "मनोरम मेमोरी कंपेनियन — पूर्वोत्तर के परिवारों के लिए प्रेम से बनाया गया",
+    activities: ["सुबह की चाय", "नाश्ता", "सुबह की सैर", "स्नान", "दोपहर का भोजन", "आराम", "स्मृति खेल", "शाम का नाश्ता", "परिवार के साथ समय", "रात का खाना", "रात की दवा", "सोने का समय"]
+  },
+  bn: {
+    appTitle: "আমার দৈনিক রুটিন",
+    appSubtitle: "মনোরম মেমোরি সঙ্গী",
+    greetingSub: "আজকের জন্য পরিকল্পনা এখানে দেওয়া হলো।",
+    goodMorning: "শুভ সকাল", goodAfternoon: "শুভ অপরাহ্ন", goodEvening: "শুভ সন্ধ্যা",
+    backBtn: "← ফিরে যান",
+    medTitle: "ওষুধের অনুস্মারক",
+    medSub: "যাতে কোনো ডোজ মিস না হয়",
+    medSelectSub: "ডাক্তার যে সময়গুলো বলেছেন তা বেছে নিন",
+    medNamePlaceholder: "ওষুধের নাম (ঐচ্ছিক)",
+    medEmpty: "এখনো কোনো সময় বাছাই করা হয়নি। উপরে থেকে বাছাই করুন।",
+    dueNow: "এখনই নিতে হবে!",
+    takeBtn: "নেওয়া হয়েছে চিহ্নিত করুন",
+    takenTag: "আজ নেওয়া হয়েছে",
+    missedTag: "আজ মিস হয়েছে",
+    resetBtn: "ওষুধের অনুস্মারক রিসেট করুন",
+    resetConfirmMsg: "এটি নির্বাচিত সকল সময় ও নাম মুছে ফেলবে। চালিয়ে যাবেন?",
+    viewReport: "মিসড ডোজ রিপোর্ট দেখুন",
+    reportTitle: "রিপোর্ট",
+    reportSub: "মিস হওয়া ওষুধের স্থায়ী রেকর্ড",
+    reportEmpty: "কোনো মিসড ডোজ রেকর্ড করা নেই। চমৎকার!",
+    eraseDataBtn: "রিপোর্ট ডেটা মুছুন",
+    eraseConfirmMsg: "এটি সমস্ত মিসড-ডোজ রেকর্ড স্থায়ীভাবে মুছে ফেলবে। চালিয়ে যাবেন?",
+    deleteConfirmMsg: "আপনি কি নিশ্চিত এটি মুছে ফেলতে চান?",
+    yesBtn: "হ্যাঁ", noBtn: "না",
+    addBtn: "অনুস্মারক যোগ করুন",
+    deleteBtn: "মুছুন",
+    slotMorning: "সকাল", slotAfternoon: "দুপুর", slotEvening: "সন্ধ্যা", slotNight: "রাত",
+    waterTitle: "জল পানের অনুস্মারক",
+    waterSub: "সারাদিন জল পানের অনুস্মারক",
+    waterSub2: "ব্রহ্মপুত্রের মতো — নিয়মিত ও শান্তভাবে জল পান করুন",
+    waterOn: "অনুস্মারক চালু",
+    waterOff: "অনুস্মারক বন্ধ",
+    waterFreqLabel: "প্রতি এত সময়ে মনে করিয়ে দিন",
+    mins: "মিনিট", hour: "ঘণ্টা", hours: "ঘণ্টা",
+    waterIdle: "ট্র্যাক শুরু করতে চালু করুন।",
+    waterCounting: "পরবর্তী অনুস্মারক",
+    waterAlertText: "এক গ্লাস জল পানের সময় হয়েছে!",
+    drankItBtn: "আমি জল পান করেছি",
+    activityTitle: "আজকের কার্যক্রম",
+    activitySub: "সম্পন্ন করার পর প্রতিটিতে ট্যাপ করুন",
+    resetDay: "নতুন দিনের জন্য রিসেট করুন",
+    resetActivityConfirmMsg: "এটি আজকের সম্পন্ন কার্যক্রম মুছে ফেলবে। চালিয়ে যাবেন?",
+    progressText: "আজ সম্পন্ন হয়েছে",
+    apptTitle: "চিকিৎসা সাক্ষাৎকার",
+    apptSub: "ডাক্তারের সাথে দেখা করার তারিখ মনে রাখুন",
+    apptNameLabel: "ডাক্তার / কারণ",
+    apptDateLabel: "তারিখ",
+    apptEmpty: "এখনো কোনো সাক্ষাৎকার নির্ধারিত হয়নি।",
+    apptToday: "আজ",
+    apptSoon: "দিন বাকি",
+    apptPast: "সম্পন্ন",
+    footerText: "মনোরম মেমোরি সঙ্গী — উত্তর-পূর্বের পরিবারগুলোর জন্য যত্ন সহকারে তৈরি",
+    activities: ["সকালের চা", "সকালের নাস্তা", "সকালের হাঁটা", "স্নান", "দুপুরের খাবার", "বিশ্রাম", "স্মৃতি খেলা", "বিকেলের নাস্তা", "পরিবারের সাথে সময়", "রাতের খাবার", "রাতের ওষুধ", "ঘুমানোর সময়"]
+  },
+  as: {
+    appTitle: "মোৰ দৈনন্দিন কাৰ্যসূচী",
+    appSubtitle: "মনোৰম স্মৃতি সংগী",
+    greetingSub: "আজিৰ বাবে পৰিকল্পনা ইয়াত দিয়া হৈছে।",
+    goodMorning: "শুভ ৰাতিপুৱা", goodAfternoon: "শুভ দুপৰীয়া", goodEvening: "শুভ সন্ধিয়া",
+    backBtn: "← উভতি যাওক",
+    medTitle: "ঔষধৰ সোঁৱৰণী",
+    medSub: "যাতে কোনো ডজ নেৰাই যায়",
+    medSelectSub: "ডাক্তৰে কোৱা সময়বোৰ বাছনি কৰক",
+    medNamePlaceholder: "ঔষধৰ নাম (ঐচ্ছিক)",
+    medEmpty: "এতিয়ালৈকে কোনো সময় বাছনি কৰা হোৱা নাই। ওপৰৰ পৰা বাছনি কৰক।",
+    dueNow: "এতিয়াই ল'ব লাগিব!",
+    takeBtn: "খোৱা হ'ল বুলি চিহ্নিত কৰক",
+    takenTag: "আজি খোৱা হৈছে",
+    missedTag: "আজি বাদ পৰিছে",
+    resetBtn: "ঔষধৰ সোঁৱৰণী ৰিছেট কৰক",
+    resetConfirmMsg: "ই সকলো বাছনি কৰা সময় আৰু নাম মচি পেলাব। আগবাঢ়িব নে?",
+    viewReport: "বাদ পৰা ডজৰ ৰিপৰ্ট চাওক",
+    reportTitle: "ৰিপৰ্ট",
+    reportSub: "বাদ পৰা ঔষধৰ স্থায়ী ৰেকৰ্ড",
+    reportEmpty: "কোনো বাদ পৰা ডজ লিপিবদ্ধ নাই। বহুত ভাল!",
+    eraseDataBtn: "ৰিপৰ্ট ডাটা মচক",
+    eraseConfirmMsg: "ই সকলো বাদ পৰা ডজৰ ৰেকৰ্ড স্থায়ীভাৱে মচি পেলাব। আগবাঢ়িব নে?",
+    deleteConfirmMsg: "আপুনি নিশ্চিতভাৱে ইয়াক মচিব বিচাৰে নেকি?",
+    yesBtn: "হয়", noBtn: "নহয়",
+    addBtn: "সোঁৱৰণী যোগ কৰক",
+    deleteBtn: "মচি পেলাওক",
+    slotMorning: "ৰাতিপুৱা", slotAfternoon: "দুপৰীয়া", slotEvening: "গধূলি", slotNight: "নিশা",
+    waterTitle: "পানী খোৱাৰ সোঁৱৰণী",
+    waterSub: "গোটেই দিনটোৰ বাবে পানী খোৱাৰ সোঁৱৰণী",
+    waterSub2: "ব্ৰহ্মপুত্ৰৰ দৰে — নিয়মীয়াকৈ আৰু শান্তভাৱে পানী খাওক",
+    waterOn: "সোঁৱৰণী অন",
+    waterOff: "সোঁৱৰণী অফ",
+    waterFreqLabel: "প্ৰতি কিমান সময়ৰ মূৰে মনত পেলাব",
+    mins: "মিনিট", hour: "ঘণ্টা", hours: "ঘণ্টা",
+    waterIdle: "ট্ৰেক আৰম্ভ কৰিবলৈ অন কৰক।",
+    waterCounting: "পৰৱৰ্তী সোঁৱৰণী",
+    waterAlertText: "এগিলাচ পানী খোৱাৰ সময় হ'ল!",
+    drankItBtn: "মই পানী খালোঁ",
+    activityTitle: "আজিৰ কাৰ্যসূচী",
+    activitySub: "সম্পূৰ্ণ কৰাৰ পিছত প্ৰতিটোত টিপক",
+    resetDay: "নতুন দিনৰ বাবে ৰিছেট কৰক",
+    resetActivityConfirmMsg: "ই আজিৰ সম্পূৰ্ণ কৰা কাৰ্যসূচী মচি পেলাব। আগবাঢ়িব নে?",
+    progressText: "আজি সম্পূৰ্ণ হৈছে",
+    apptTitle: "চিকিৎসা সাক্ষাৎ",
+    apptSub: "ডাক্তৰৰ ওচৰলৈ যোৱাৰ তাৰিখ মনত ৰাখক",
+    apptNameLabel: "ডাক্তৰ / কাৰণ",
+    apptDateLabel: "তাৰিখ",
+    apptEmpty: "এতিয়ালৈকে কোনো সাক্ষাৎ নিৰ্ধাৰিত হোৱা নাই।",
+    apptToday: "আজি",
+    apptSoon: "দিন বাকী",
+    apptPast: "সম্পূৰ্ণ",
+    footerText: "মনোৰম স্মৃতি সংগী — উত্তৰ-পূৰ্বৰ পৰিয়ালসমূহৰ বাবে যত্নেৰে সাজি উলিওৱা",
+    activities: ["পুৱাৰ চাহ", "পুৱাৰ আহাৰ", "পুৱাৰ খোজকঢ়া", "গা ধোৱা", "দুপৰীয়াৰ আহাৰ", "জিৰণি", "স্মৃতি খেল", "গধূলিৰ জলপান", "পৰিয়ালৰ সৈতে সময়", "নিশাৰ আহাৰ", "নিশাৰ ঔষধ", "শোৱাৰ সময়"]
+  }
+};
+
+const activityEmojis = ["🍵","🍳","🚶","🛁","🍛","😴","🧩","🍪","👨‍👩‍👧","🍽️","💊","🌙"];
+
+const PRESET_SLOTS = [
+  { id: "morning",   time: "07:00", emoji: "🌅", labelKey: "slotMorning" },
+  { id: "afternoon", time: "13:00", emoji: "☀️", labelKey: "slotAfternoon" },
+  { id: "evening",   time: "17:00", emoji: "🌇", labelKey: "slotEvening" },
+  { id: "night",     time: "21:00", emoji: "🌙", labelKey: "slotNight" }
+];
+const MISSED_GRACE_MINUTES = 180; // 3 hour grace window before a dose is logged as missed
+
+let currentLang = localStorage.getItem("monorom_lang") || "en"; // shared language key across the whole site
+
+/* ===================== STATE ===================== */
+function loadState(key, fallback) {
+  try {
+    const v = localStorage.getItem(key);
+    return v ? JSON.parse(v) : fallback;
+  } catch (e) { return fallback; }
+}
+function saveState(key, value) { localStorage.setItem(key, JSON.stringify(value)); }
+
+let appointments = loadState("routine_appointments", []);
+let activityState = loadState("routine_activities", {});
+let waterSettings = loadState("routine_water", { on: false, freqMinutes: 60, nextDue: null });
+
+// medSlots: { morning: { active:bool, name:string, takenToday:bool, missedLogged:bool }, ... }
+let medSlots = loadState("routine_med_slots", (() => {
+  const init = {};
+  PRESET_SLOTS.forEach(s => { init[s.id] = { active: false, name: "", takenToday: false, missedLogged: false }; });
+  return init;
+})());
+
+// reportEntries: [{ id, date, slotId, name }]  -- permanent until erased
+let reportEntries = loadState("routine_report", []);
+
+const todayStr = () => new Date().toISOString().slice(0, 10);
+
+/* Daily rollover for activities */
+(function resetActivitiesIfNewDay() {
+  const last = localStorage.getItem("routine_activities_day");
+  if (last !== todayStr()) {
+    activityState = {};
+    saveState("routine_activities", activityState);
+    localStorage.setItem("routine_activities_day", todayStr());
+  }
+})();
+
+/* Daily rollover for medicine slots: log missed doses from the previous day, then reset flags */
+(function resetMedSlotsIfNewDay() {
+  const last = localStorage.getItem("routine_med_day");
+  const today = todayStr();
+  if (last && last !== today) {
+    PRESET_SLOTS.forEach(s => {
+      const slot = medSlots[s.id];
+      if (slot && slot.active && !slot.takenToday && !slot.missedLogged) {
+        logMissedDose(s.id, slot.name, last);
+      }
+    });
+    Object.keys(medSlots).forEach(id => {
+      medSlots[id].takenToday = false;
+      medSlots[id].missedLogged = false;
+    });
+    saveState("routine_med_slots", medSlots);
+  }
+  localStorage.setItem("routine_med_day", today);
+})();
+
+function logMissedDose(slotId, name, dateStr) {
+  reportEntries.push({
+    id: Date.now() + Math.random(),
+    date: dateStr || todayStr(),
+    slotId,
+    name: name || ""
+  });
+  saveState("routine_report", reportEntries);
+}
+
+/* ===================== I18N RENDER ===================== */
+function t(key) {
+  return (translations[currentLang] && translations[currentLang][key]) || translations.en[key] || key;
+}
+
+function applyTranslations() {
+  document.querySelectorAll("[data-i18n]").forEach(el => { el.textContent = t(el.getAttribute("data-i18n")); });
+  document.querySelectorAll("[data-i18n-inline]").forEach(el => { el.textContent = t(el.getAttribute("data-i18n-inline")); });
+  document.getElementById("apptName").placeholder = currentLang === "en" ? "e.g. Dr. Sharma - Checkup" : t("apptNameLabel");
+  updateGreeting();
+  renderSlots();
+  renderMedicines();
+  renderReport();
+  renderActivities();
+  renderAppointments();
+  updateWaterUI();
+}
+
+function updateGreeting() {
+  const hour = new Date().getHours();
+  let key = "goodMorning";
+  if (hour >= 12 && hour < 17) key = "goodAfternoon";
+  else if (hour >= 17) key = "goodEvening";
+  document.getElementById("greetingText").textContent = t(key);
+}
+
+function updateClock() {
+  const now = new Date();
+  const h = String(now.getHours()).padStart(2, "0");
+  const m = String(now.getMinutes()).padStart(2, "0");
+  document.getElementById("clockPill").textContent = `${h}:${m}`;
+}
+
+/* ===================== NAVIGATION ===================== */
+function goTo(screenName) {
+  document.querySelectorAll(".screen").forEach(s => s.classList.remove("active"));
+  document.getElementById("screen-" + screenName).classList.add("active");
+  window.scrollTo(0, 0);
+}
+
+/* ===================== CONFIRMATION MODAL ===================== */
+const modalOverlay = document.getElementById("modalOverlay");
+const modalMessage = document.getElementById("modalMessage");
+const modalConfirmBtn = document.getElementById("modalConfirmBtn");
+const modalCancelBtn = document.getElementById("modalCancelBtn");
+let pendingConfirmAction = null;
+
+function askConfirmation(messageKey, onConfirm) {
+  modalMessage.textContent = t(messageKey);
+  pendingConfirmAction = onConfirm;
+  modalOverlay.classList.add("show");
+}
+function closeModal() {
+  modalOverlay.classList.remove("show");
+  pendingConfirmAction = null;
+}
+modalConfirmBtn.addEventListener("click", () => {
+  const action = pendingConfirmAction;
+  closeModal();
+  if (action) action();
+});
+modalCancelBtn.addEventListener("click", closeModal);
+modalOverlay.addEventListener("click", (e) => { if (e.target === modalOverlay) closeModal(); });
+
+/* ===================== MEDICINE PRESET SLOTS ===================== */
+function renderSlots() {
+  const grid = document.getElementById("slotGrid");
+  grid.innerHTML = "";
+  PRESET_SLOTS.forEach(s => {
+    const slot = medSlots[s.id];
+    const card = document.createElement("div");
+    card.className = "slot-card" + (slot.active ? " selected" : "");
+    card.setAttribute("role", "button");
+    card.setAttribute("tabindex", "0");
+
+    const top = document.createElement("div");
+    top.className = "slot-top";
+
+    const left = document.createElement("div");
+    left.innerHTML = `<div class="slot-emoji">${s.emoji}</div>`;
+
+    const checkbox = document.createElement("div");
+    checkbox.className = "slot-checkbox";
+    checkbox.textContent = slot.active ? "✔" : "";
+
+    top.appendChild(left);
+    top.appendChild(checkbox);
+
+    const nameEl = document.createElement("div");
+    nameEl.className = "slot-name";
+    nameEl.textContent = t(s.labelKey);
+
+    const timeEl = document.createElement("div");
+    timeEl.className = "slot-time";
+    timeEl.textContent = formatTime(s.time);
+
+    const nameInput = document.createElement("input");
+    nameInput.type = "text";
+    nameInput.className = "slot-name-input";
+    nameInput.placeholder = t("medNamePlaceholder");
+    nameInput.value = slot.name || "";
+    nameInput.addEventListener("click", e => e.stopPropagation());
+    nameInput.addEventListener("input", () => {
+      medSlots[s.id].name = nameInput.value;
+      saveState("routine_med_slots", medSlots);
+      renderMedicines();
+    });
+
+    card.appendChild(top);
+    card.appendChild(nameEl);
+    card.appendChild(timeEl);
+    card.appendChild(nameInput);
+
+    const toggle = () => {
+      medSlots[s.id].active = !medSlots[s.id].active;
+      if (medSlots[s.id].active) {
+        medSlots[s.id].takenToday = false;
+        medSlots[s.id].missedLogged = false;
+      }
+      saveState("routine_med_slots", medSlots);
+      renderSlots();
+      renderMedicines();
+    };
+    card.addEventListener("click", toggle);
+    card.addEventListener("keypress", e => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); toggle(); } });
+
+    grid.appendChild(card);
+  });
+}
+
+function renderMedicines() {
+  const list = document.getElementById("medList");
+  const empty = document.getElementById("medEmpty");
+  list.innerHTML = "";
+
+  const activeSlots = PRESET_SLOTS.filter(s => medSlots[s.id].active);
+  if (activeSlots.length === 0) {
+    empty.style.display = "block";
+    document.getElementById("homeMedBadge").classList.remove("show");
+    return;
+  }
+  empty.style.display = "none";
+
+  const now = new Date();
+  const nowMinutes = now.getHours() * 60 + now.getMinutes();
+  let dueCount = 0;
+
+  activeSlots
+    .slice()
+    .sort((a, b) => a.time.localeCompare(b.time))
+    .forEach(s => {
+      const slot = medSlots[s.id];
+      const [h, m] = s.time.split(":").map(Number);
+      const slotMinutes = h * 60 + m;
+      const minutesSince = nowMinutes - slotMinutes;
+      const isDue = !slot.takenToday && minutesSince >= 0 && minutesSince <= MISSED_GRACE_MINUTES;
+
+      if (!slot.takenToday && !slot.missedLogged && minutesSince > MISSED_GRACE_MINUTES) {
+        slot.missedLogged = true;
+        logMissedDose(s.id, slot.name, todayStr());
+        saveState("routine_med_slots", medSlots);
+      }
+
+      if (isDue) dueCount++;
+
+      const row = document.createElement("div");
+      row.className = "med-item" + (isDue ? " due" : "");
+
+      const info = document.createElement("div");
+      info.className = "med-info";
+      const nameEl = document.createElement("span");
+      nameEl.className = "med-name";
+      nameEl.textContent = (slot.name && slot.name.trim()) ? slot.name : t(s.labelKey);
+      const timeEl = document.createElement("span");
+      timeEl.className = "med-time";
+      timeEl.textContent = `${t(s.labelKey)} · ${formatTime(s.time)}` + (isDue ? " — " + t("dueNow") : "");
+      info.appendChild(nameEl);
+      info.appendChild(timeEl);
+
+      const actions = document.createElement("div");
+      actions.className = "med-actions";
+
+      if (slot.takenToday) {
+        const tag = document.createElement("span");
+        tag.className = "taken-tag";
+        tag.textContent = t("takenTag");
+        actions.appendChild(tag);
+      } else if (slot.missedLogged) {
+        const tag = document.createElement("span");
+        tag.className = "missed-tag";
+        tag.textContent = t("missedTag");
+        actions.appendChild(tag);
+      } else {
+        const takeBtn = document.createElement("button");
+        takeBtn.className = "btn btn-primary btn-sm";
+        takeBtn.textContent = t("takeBtn");
+        takeBtn.onclick = () => {
+          slot.takenToday = true;
+          saveState("routine_med_slots", medSlots);
+          renderMedicines();
+        };
+        actions.appendChild(takeBtn);
+      }
+
+      row.appendChild(info);
+      row.appendChild(actions);
+      list.appendChild(row);
+    });
+
+  const badge = document.getElementById("homeMedBadge");
+  if (dueCount > 0) { badge.textContent = dueCount; badge.classList.add("show"); }
+  else { badge.classList.remove("show"); }
+}
+
+function formatTime(t24) {
+  const [h, m] = t24.split(":").map(Number);
+  const period = h >= 12 ? "PM" : "AM";
+  const h12 = h % 12 === 0 ? 12 : h % 12;
+  return `${h12}:${String(m).padStart(2, "0")} ${period}`;
+}
+
+document.getElementById("resetMedBtn").addEventListener("click", () => {
+  askConfirmation("resetConfirmMsg", () => {
+    PRESET_SLOTS.forEach(s => {
+      medSlots[s.id] = { active: false, name: "", takenToday: false, missedLogged: false };
+    });
+    saveState("routine_med_slots", medSlots);
+    renderSlots();
+    renderMedicines();
+  });
+});
+
+document.getElementById("viewReportBtn").addEventListener("click", () => goTo("report"));
+
+/* ===================== REPORT ===================== */
+function renderReport() {
+  const list = document.getElementById("reportList");
+  const empty = document.getElementById("reportEmpty");
+  list.innerHTML = "";
+
+  if (reportEntries.length === 0) {
+    empty.style.display = "block";
+    return;
+  }
+  empty.style.display = "none";
+
+  reportEntries
+    .slice()
+    .sort((a, b) => (b.date + b.id) > (a.date + a.id) ? 1 : -1)
+    .forEach(entry => {
+      const slotDef = PRESET_SLOTS.find(s => s.id === entry.slotId);
+      const row = document.createElement("div");
+      row.className = "report-item";
+
+      const info = document.createElement("div");
+      info.className = "report-info";
+      const nameEl = document.createElement("span");
+      nameEl.className = "report-name";
+      nameEl.textContent = (entry.name && entry.name.trim()) ? entry.name : (slotDef ? t(slotDef.labelKey) : "");
+      const metaEl = document.createElement("span");
+      metaEl.className = "report-meta";
+      const dateNice = new Date(entry.date + "T00:00:00").toLocaleDateString(undefined, { year: "numeric", month: "short", day: "numeric" });
+      metaEl.textContent = `${slotDef ? t(slotDef.labelKey) : ""} · ${dateNice}`;
+      info.appendChild(nameEl);
+      info.appendChild(metaEl);
+
+      const tag = document.createElement("span");
+      tag.className = "missed-tag";
+      tag.textContent = t("missedTag");
+
+      row.appendChild(info);
+      row.appendChild(tag);
+      list.appendChild(row);
+    });
+}
+
+document.getElementById("eraseReportBtn").addEventListener("click", () => {
+  askConfirmation("eraseConfirmMsg", () => {
+    reportEntries = [];
+    saveState("routine_report", reportEntries);
+    renderReport();
+  });
+});
+
+/* ===================== HYDRATION ===================== */
+const waterToggle = document.getElementById("waterToggle");
+const waterFreq = document.getElementById("waterFreq");
+const waterBanner = document.getElementById("waterBanner");
+
+waterToggle.checked = waterSettings.on;
+waterFreq.value = String(waterSettings.freqMinutes);
+
+function updateWaterUI() {
+  document.getElementById("waterToggleLabel").textContent = waterSettings.on ? t("waterOn") : t("waterOff");
+  if (!waterSettings.on) {
+    document.getElementById("waterStatus").textContent = t("waterIdle");
+    document.getElementById("waterProgressFill").style.width = "0%";
+    waterBanner.classList.remove("show");
+    return;
+  }
+  tickWater();
+}
+
+function tickWater() {
+  if (!waterSettings.on || !waterSettings.nextDue) return;
+  const totalMs = waterSettings.freqMinutes * 60 * 1000;
+  const remaining = waterSettings.nextDue - Date.now();
+  if (remaining <= 0) {
+    waterBanner.classList.add("show");
+    document.getElementById("waterStatus").textContent = t("waterAlertText");
+    document.getElementById("waterProgressFill").style.width = "100%";
+    return;
+  }
+  const elapsedPct = Math.max(0, Math.min(100, ((totalMs - remaining) / totalMs) * 100));
+  document.getElementById("waterProgressFill").style.width = elapsedPct + "%";
+  const mins = Math.floor(remaining / 60000);
+  const secs = Math.floor((remaining % 60000) / 1000);
+  document.getElementById("waterStatus").textContent = `${t("waterCounting")}: ${mins}m ${String(secs).padStart(2, "0")}s`;
+}
+
+waterToggle.addEventListener("change", () => {
+  waterSettings.on = waterToggle.checked;
+  if (waterSettings.on) {
+    waterSettings.freqMinutes = parseInt(waterFreq.value, 10);
+    waterSettings.nextDue = Date.now() + waterSettings.freqMinutes * 60000;
+  } else {
+    waterSettings.nextDue = null;
+    waterBanner.classList.remove("show");
+  }
+  saveState("routine_water", waterSettings);
+  updateWaterUI();
+});
+
+waterFreq.addEventListener("change", () => {
+  waterSettings.freqMinutes = parseInt(waterFreq.value, 10);
+  if (waterSettings.on) waterSettings.nextDue = Date.now() + waterSettings.freqMinutes * 60000;
+  saveState("routine_water", waterSettings);
+  updateWaterUI();
+});
+
+document.getElementById("waterDismissBtn").addEventListener("click", () => {
+  waterSettings.nextDue = Date.now() + waterSettings.freqMinutes * 60000;
+  waterBanner.classList.remove("show");
+  saveState("routine_water", waterSettings);
+  updateWaterUI();
+});
+
+/* ===================== ACTIVITIES ===================== */
+function renderActivities() {
+  const grid = document.getElementById("activityGrid");
+  grid.innerHTML = "";
+  const list = t("activities");
+  let doneCount = 0;
+
+  list.forEach((label, idx) => {
+    const state = activityState[idx];
+    const done = !!(state && state.done);
+    if (done) doneCount++;
+
+    const card = document.createElement("div");
+    card.className = "activity-card" + (done ? " done" : "");
+    card.setAttribute("role", "button");
+    card.setAttribute("tabindex", "0");
+
+    const emoji = document.createElement("div");
+    emoji.className = "emoji";
+    emoji.textContent = activityEmojis[idx] || "⭐";
+
+    const labelEl = document.createElement("div");
+    labelEl.className = "label";
+    labelEl.textContent = label;
+
+    const badge = document.createElement("div");
+    badge.className = "check-badge";
+    badge.textContent = done ? "✔" : "○";
+
+    card.appendChild(emoji);
+    card.appendChild(labelEl);
+    card.appendChild(badge);
+
+    const toggle = () => {
+      const isDone = !!(activityState[idx] && activityState[idx].done);
+      activityState[idx] = { done: !isDone, date: todayStr() };
+      saveState("routine_activities", activityState);
+      renderActivities();
+    };
+    card.addEventListener("click", toggle);
+    card.addEventListener("keypress", e => { if (e.key === "Enter" || e.key === " ") toggle(); });
+
+    grid.appendChild(card);
+  });
+
+  document.getElementById("activityProgress").textContent = `${doneCount} / ${list.length} ${t("progressText")}`;
+}
+
+document.getElementById("resetActivitiesBtn").addEventListener("click", () => {
+  askConfirmation("resetActivityConfirmMsg", () => {
+    activityState = {};
+    saveState("routine_activities", activityState);
+    localStorage.setItem("routine_activities_day", todayStr());
+    renderActivities();
+  });
+});
+
+/* ===================== APPOINTMENTS ===================== */
+function renderAppointments() {
+  const list = document.getElementById("apptList");
+  const empty = document.getElementById("apptEmpty");
+  list.innerHTML = "";
+
+  if (appointments.length === 0) {
+    empty.style.display = "block";
+    return;
+  }
+  empty.style.display = "none";
+
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+
+  appointments
+    .slice()
+    .sort((a, b) => a.date.localeCompare(b.date))
+    .forEach(appt => {
+      const apptDate = new Date(appt.date + "T00:00:00");
+      const diffDays = Math.round((apptDate - today) / 86400000);
+
+      const row = document.createElement("div");
+      row.className = "appt-item";
+
+      const info = document.createElement("div");
+      info.className = "appt-info";
+      const nameEl = document.createElement("span");
+      nameEl.className = "appt-name";
+      nameEl.textContent = appt.name;
+      const dateEl = document.createElement("span");
+      dateEl.className = "appt-date";
+      dateEl.textContent = apptDate.toLocaleDateString(undefined, { year: "numeric", month: "long", day: "numeric" });
+      info.appendChild(nameEl);
+      info.appendChild(dateEl);
+
+      const badge = document.createElement("span");
+      badge.className = "appt-badge";
+      if (diffDays === 0) { badge.classList.add("badge-today"); badge.textContent = t("apptToday"); }
+      else if (diffDays > 0 && diffDays <= 3) { badge.classList.add("badge-soon"); badge.textContent = `${diffDays} ${t("apptSoon")}`; }
+      else if (diffDays < 0) { badge.classList.add("badge-later"); badge.textContent = t("apptPast"); }
+      else { badge.classList.add("badge-later"); badge.textContent = `${diffDays} ${t("apptSoon")}`; }
+
+      const delBtn = document.createElement("button");
+      delBtn.className = "btn btn-outline btn-sm";
+      delBtn.textContent = t("deleteBtn");
+      delBtn.onclick = () => {
+        askConfirmation("deleteConfirmMsg", () => {
+          appointments = appointments.filter(x => x.id !== appt.id);
+          saveState("routine_appointments", appointments);
+          renderAppointments();
+        });
+      };
+
+      const right = document.createElement("div");
+      right.style.display = "flex";
+      right.style.gap = "10px";
+      right.style.alignItems = "center";
+      right.appendChild(badge);
+      right.appendChild(delBtn);
+
+      row.appendChild(info);
+      row.appendChild(right);
+      list.appendChild(row);
+    });
+}
+
+document.getElementById("addApptBtn").addEventListener("click", () => {
+  const name = document.getElementById("apptName").value.trim();
+  const date = document.getElementById("apptDate").value;
+  if (!name || !date) return;
+  appointments.push({ id: Date.now(), name, date });
+  saveState("routine_appointments", appointments);
+  document.getElementById("apptName").value = "";
+  document.getElementById("apptDate").value = "";
+  renderAppointments();
+});
+
+/* ===================== INTERVALS ===================== */
+setInterval(() => {
+  updateClock();
+  tickWater();
+  renderMedicines();
+}, 1000);
+
+/* ===================== INIT ===================== */
+updateClock();
+applyTranslations();
+</script>
+
+</body>
+</html>

@@ -1,0 +1,1 @@
+import {Router} from 'express'; import {createAlert} from '../controllers/emergencyController.js'; import {requireAuth} from '../middleware/auth.js'; const r=Router(); r.use(requireAuth); r.post('/',createAlert); export default r;

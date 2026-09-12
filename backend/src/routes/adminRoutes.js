@@ -1,0 +1,1 @@
+import {Router} from 'express'; import {dashboard} from '../controllers/adminController.js'; import {requireAuth,requireAdmin} from '../middleware/auth.js'; const r=Router(); r.use(requireAuth,requireAdmin); r.get('/dashboard',dashboard); export default r;

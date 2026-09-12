@@ -1,0 +1,1 @@
+import {Router} from 'express'; import {logActivity} from '../controllers/activityController.js'; import {requireAuth} from '../middleware/auth.js'; const r=Router(); r.use(requireAuth); r.post('/',logActivity); export default r;

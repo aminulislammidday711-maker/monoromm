@@ -1,0 +1,1006 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>VOID BREACH — 3D Arcade</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@400;600;700&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --void:#060714;
+    --panel:rgba(13,17,38,0.86);
+    --edge:#2a3a6b;
+    --plasma:#52d9ff;
+    --plasma-dim:#2a6f85;
+    --hostile:#ff5d73;
+    --amber:#ffb84f;
+    --mint:#7dffb0;
+    --text-soft:#9aa6c9;
+  }
+  *{box-sizing:border-box;margin:0;padding:0;}
+  html,body{
+    height:100%;
+    background:var(--void);
+    font-family:'JetBrains Mono', monospace;
+    color:#e8ecff;
+    overflow:hidden;
+    -webkit-tap-highlight-color:transparent;
+  }
+  body{
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    justify-content:center;
+    min-height:100vh;
+    padding:14px;
+    background-image: url('void_breach.jpg');
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+  }
+  .stage{
+    position:relative;
+    width:100%;
+    max-width:460px;
+  }
+  .panel{
+    background:var(--panel);
+    border:1px solid var(--edge);
+    border-radius:14px;
+    box-shadow:0 0 0 1px rgba(82,217,255,0.05), 0 20px 60px rgba(0,0,0,0.55), 0 0 40px rgba(82,217,255,0.08);
+    backdrop-filter:blur(6px);
+  }
+  #menu-screen{
+    padding:38px 30px 34px;
+    text-align:center;
+  }
+  .brand-mark{
+    width:46px;height:46px;margin:0 auto 18px;
+    border-radius:50%;
+    background:radial-gradient(circle at 35% 30%, #bdf2ff, var(--plasma) 45%, var(--plasma-dim) 100%);
+    box-shadow:0 0 30px rgba(82,217,255,0.55);
+  }
+  h1{
+    font-family:'Chakra Petch', sans-serif;
+    font-weight:700;
+    font-size:1.9rem;
+    letter-spacing:1px;
+    color:#eef4ff;
+  }
+  h1 span{color:var(--plasma);}
+  .tagline{
+    font-size:0.72rem;
+    color:var(--text-soft);
+    letter-spacing:2px;
+    margin-top:6px;
+    margin-bottom:20px;
+  }
+  .lang-select-wrap{
+    margin-bottom:20px;
+    text-align:left;
+  }
+  .lang-label{
+    font-size:0.65rem;
+    color:var(--text-soft);
+    letter-spacing:1.5px;
+    margin-bottom:6px;
+    display:block;
+  }
+  .lang-select{
+    width:100%;
+    padding:10px 12px;
+    background:rgba(82,217,255,0.07);
+    border:1px solid var(--edge);
+    border-radius:8px;
+    color:#cfe8ff;
+    font-family:'JetBrains Mono', monospace;
+    font-size:0.8rem;
+    outline:none;
+    cursor:pointer;
+  }
+  .lang-select option{
+    background:#0d1126;
+    color:#e8ecff;
+  }
+  .brief{
+    text-align:left;
+    font-size:0.82rem;
+    line-height:1.7;
+    color:#c4cbea;
+    background:rgba(82,217,255,0.05);
+    border:1px solid rgba(82,217,255,0.15);
+    border-radius:10px;
+    padding:14px 16px;
+    margin-bottom:20px;
+  }
+  .brief b{color:var(--plasma);font-weight:700;}
+  .brief .k{color:var(--hostile);font-weight:700;}
+  .start-btn{
+    width:100%;
+    padding:15px;
+    font-family:'Chakra Petch', sans-serif;
+    font-size:1.05rem;
+    font-weight:700;
+    letter-spacing:1.5px;
+    color:#031018;
+    background:linear-gradient(180deg, #8fe9ff, var(--plasma));
+    border:none;
+    border-radius:9px;
+    cursor:pointer;
+    box-shadow:0 8px 24px rgba(82,217,255,0.35);
+    transition:transform 0.15s ease, box-shadow 0.15s ease;
+  }
+  .start-btn:active{transform:translateY(2px) scale(0.99);box-shadow:0 4px 14px rgba(82,217,255,0.3);}
+  
+  .volume-control{
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    gap:10px;
+    margin-top:16px;
+    font-size:0.75rem;
+    color:var(--text-soft);
+  }
+  .vol-btn{
+    background:rgba(82,217,255,0.07);
+    border:1px solid var(--edge);
+    color:#cfe8ff;
+    padding:4px 10px;
+    border-radius:4px;
+    cursor:pointer;
+    font-family:'JetBrains Mono', monospace;
+    font-size:0.8rem;
+  }
+  .vol-btn:active{background:var(--plasma);color:#031018;}
+  .vol-val{color:var(--plasma);font-weight:700;min-width:32px;text-align:center;}
+
+  .best-score{
+    margin-top:12px;
+    font-size:0.75rem;
+    color:var(--text-soft);
+  }
+  .best-score b{color:var(--amber);}
+  #game-screen{display:none;}
+  .hud{
+    display:flex;
+    justify-content:space-between;
+    align-items:flex-start;
+    padding:10px 14px;
+    font-size:0.85rem;
+  }
+  .hud .stat{display:flex;flex-direction:column;align-items:flex-start;}
+  .hud .stat.right{align-items:flex-end;}
+  .hud .label{font-size:0.6rem;letter-spacing:1.5px;color:var(--text-soft);}
+  .hud .value{font-family:'Chakra Petch',sans-serif;font-weight:700;font-size:1.25rem;color:var(--plasma);}
+  .hud .value.hostile{color:var(--hostile);}
+  .lives{display:flex;gap:5px;margin-top:2px;}
+  .life-dot{width:9px;height:9px;border-radius:50%;background:var(--plasma);box-shadow:0 0 6px var(--plasma);}
+  .life-dot.lost{background:transparent;border:1px solid var(--edge);box-shadow:none;}
+  .quit-btn{
+    background: transparent;
+    border: 1px solid var(--hostile);
+    color: var(--hostile);
+    font-family: 'Chakra Petch', sans-serif;
+    font-size: 0.65rem;
+    padding: 3px 8px;
+    border-radius: 4px;
+    cursor: pointer;
+    margin-top: 5px;
+    letter-spacing: 1px;
+    transition: background 0.15s, color 0.15s;
+  }
+  .quit-btn:hover, .quit-btn:active{
+    background: var(--hostile);
+    color: #1a0508;
+  }
+  .canvas-wrap{
+    position:relative;
+    margin:0 12px;
+    border-radius:10px;
+    overflow:hidden;
+    border:1px solid var(--edge);
+    background:#020208;
+    aspect-ratio: 3 / 4;
+  }
+  #gameCanvas{display:block;width:100%;height:100%;}
+  .scanlines{
+    position:absolute;inset:0;pointer-events:none;
+    background:repeating-linear-gradient(to bottom, rgba(255,255,255,0.035) 0px, rgba(255,255,255,0.035) 1px, transparent 2px, transparent 3px);
+    mix-blend-mode:overlay;
+  }
+  .vignette{
+    position:absolute;inset:0;pointer-events:none;
+    background:radial-gradient(ellipse at center, transparent 55%, rgba(2,2,10,0.75) 100%);
+  }
+  .flash-overlay{
+    position:absolute;inset:0;pointer-events:none;
+    background:rgba(255,70,90,0.35);
+    opacity:0;
+  }
+  .banner{
+    position:absolute;left:0;right:0;top:44%;
+    text-align:center;
+    font-family:'Chakra Petch',sans-serif;
+    font-weight:700;
+    letter-spacing:3px;
+    font-size:1.5rem;
+    opacity:0;
+    pointer-events:none;
+    transform:translateY(8px) scale(0.95);
+    transition:opacity 0.35s ease, transform 0.35s ease;
+    text-shadow:0 0 18px currentColor;
+  }
+  .banner.show{opacity:1;transform:translateY(0) scale(1);}
+  .controls{
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    gap:10px;
+    padding:14px 14px 4px;
+  }
+  .ctl-btn{
+    flex:1;
+    max-width:120px;
+    padding:14px 0;
+    text-align:center;
+    font-family:'Chakra Petch',sans-serif;
+    font-weight:700;
+    font-size:0.85rem;
+    letter-spacing:1px;
+    color:#cfe8ff;
+    background:rgba(82,217,255,0.07);
+    border:1px solid var(--edge);
+    border-radius:8px;
+    cursor:pointer;
+    user-select:none;
+    -webkit-user-select:none;
+    touch-action:manipulation;
+  }
+  .ctl-btn.active, .ctl-btn:active{background:var(--plasma);color:#031018;border-color:var(--plasma);}
+  .ctl-btn.fire{color:var(--hostile);}
+  .ctl-btn.fire.active, .ctl-btn.fire:active{background:var(--hostile);color:#1a0508;border-color:var(--hostile);}
+  .hint{
+    text-align:center;
+    font-size:0.65rem;
+    color:var(--text-soft);
+    letter-spacing:1px;
+    padding:8px 0 18px;
+  }
+</style>
+
+<script src="../api-config.js"></script>
+<script src="../monorom-core.js"></script>
+<script src="../monorom-language.js"></script>
+</head>
+<body>
+
+<!-- Background Music Audio Element -->
+<audio id="bg-music" loop src="https://actions.google.com/sounds/v1/science_fiction/deep_space_ambience.ogg"></audio>
+
+<div class="stage">
+
+  <!-- MENU -->
+  <div id="menu-screen" class="panel">
+    <div class="brand-mark"></div>
+    <h1 id="txt-title">VOID <span>BREACH</span></h1>
+    <div class="tagline" id="txt-tagline">20 WAVES OF CLOSING HOSTILES</div>
+    
+    <div class="lang-select-wrap">
+      <label class="lang-label" id="txt-lang-label">CHOOSE YOUR LANGUAGE</label>
+      <select id="lang-select" class="lang-select" onchange="changeLanguage(this.value)">
+        <option value="en">English</option>
+        <option value="hi">हिंदी (Hindi)</option>
+        <option value="bn">বাংলা (Bengali)</option>
+        <option value="as">অসমীয়া (Assamese)</option>
+      </select>
+    </div>
+
+    <div class="brief" id="txt-brief">
+      Steer with <b>◀️ / ▶️</b> or drag the buttons below.<br>
+      Press <b>FIRE</b> or <b>SPACEBAR</b> to shoot.<br>
+      Hold the line — if a <span class="k">hostile</span> reaches your hull, you lose a shield.
+    </div>
+    <button class="start-btn" id="txt-start-btn" onclick="startGame()">ENTER THE BREACH</button>
+    
+    <div class="volume-control">
+      <span id="txt-vol-label">MUSIC VOL:</span>
+      <button class="vol-btn" onclick="adjustVolume(-0.1)">-</button>
+      <span class="vol-val" id="vol-display">50%</span>
+      <button class="vol-btn" onclick="adjustVolume(0.1)">+</button>
+    </div>
+
+    <div class="best-score" id="best-score-line" style="display:none;"><span id="txt-last-run">LAST RUN:</span> <b id="best-score-val">0</b></div>
+  </div>
+
+  <!-- GAME -->
+  <div id="game-screen" class="panel">
+    <div class="hud">
+      <div class="stat">
+        <div class="label" id="txt-score-label">SCORE</div>
+        <div class="value" id="score">0</div>
+      </div>
+      <div class="stat">
+        <div class="label" id="txt-wave-label">WAVE</div>
+        <div class="value" id="wave" style="color:var(--amber);">1 / 20</div>
+      </div>
+      <div class="stat right">
+        <div class="label" id="txt-shields-label">SHIELDS</div>
+        <div class="lives" id="lives">
+          <div class="life-dot"></div>
+          <div class="life-dot"></div>
+          <div class="life-dot"></div>
+        </div>
+        <button class="quit-btn" id="txt-quit-btn" onclick="quitGame()">QUIT</button>
+      </div>
+    </div>
+
+    <div class="canvas-wrap" id="canvas-wrap">
+      <canvas id="gameCanvas"></canvas>
+      <div class="scanlines"></div>
+      <div class="vignette"></div>
+      <div class="flash-overlay" id="flash-overlay"></div>
+      <div class="banner" id="banner">WAVE CLEARED</div>
+    </div>
+
+    <div class="controls">
+      <div class="ctl-btn" id="btn-left">◀️ LEFT</div>
+      <div class="ctl-btn fire" id="btn-fire">FIRE</div>
+      <div class="ctl-btn" id="btn-right">RIGHT ▶️</div>
+    </div>
+    <div class="hint" id="txt-hint">arrow keys / spacebar also work</div>
+  </div>
+
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script>
+  /* =========================================================
+     TRANSLATIONS DICTIONARY
+  ========================================================= */
+  const translations = {
+    en: {
+      tagline: "20 WAVES OF CLOSING HOSTILES",
+      langLabel: "CHOOSE YOUR LANGUAGE",
+      brief: "Steer with <b>◀️ / ▶️</b> or drag the buttons below.<br>Press <b>FIRE</b> or <b>SPACEBAR</b> to shoot.<br>Hold the line — if a <span class='k'>hostile</span> reaches your hull, you lose a shield.",
+      startBtn: "ENTER THE BREACH",
+      volLabel: "MUSIC VOL:",
+      lastRun: "LAST RUN:",
+      scoreLabel: "SCORE",
+      waveLabel: "WAVE",
+      shieldsLabel: "SHIELDS",
+      quitBtn: "QUIT",
+      hint: "arrow keys / spacebar also work",
+      leftBtn: "◀️ LEFT",
+      fireBtn: "FIRE",
+      rightBtn: "RIGHT ▶️"
+    },
+    hi: {
+      tagline: "करीब आते दुश्मनों की 20 तरंगें",
+      langLabel: "अपनी भाषा चुनें",
+      brief: "<b>◀️ / ▶️</b> से दिशा बदलें या नीचे दिए गए बटन खींचें।<br>गोली चलाने के लिए <b>FIRE</b> या <b>SPACEBAR</b> दबाएं।<br>अपनी स्थिति बनाए रखें — यदि कोई <span class='k'>दुश्मन</span> आपके जहाज तक पहुंचता है, तो आप एक कवच खो देंगे।",
+      startBtn: "ब्रीच में प्रवेश करें",
+      volLabel: "संगीत वॉल्यूम:",
+      lastRun: "पिछला स्कोर:",
+      scoreLabel: "स्कोर",
+      waveLabel: "वेव",
+      shieldsLabel: "शील्ड्स",
+      quitBtn: "छोड़ें",
+      hint: "तीर कुंजियाँ / स्पेसबार भी काम करते हैं",
+      leftBtn: "◀️ बाएँ",
+      fireBtn: "फायर",
+      rightBtn: "दाएँ ▶️"
+    },
+    bn: {
+      tagline: "কাছাকাছি আসা শত্রুদের ২০টি ঢেউ",
+      langLabel: "আপনার ভাষা বেছে নিন",
+      brief: "<b>◀️ / ▶️</b> দিয়ে পরিচালনা করুন বা নিচের বোতামগুলো টেনে ব্যবহার করুন।<br>গুলি করতে <b>FIRE</b> বা <b>SPACEBAR</b> টিপুন।<br>লাইন ধরে রাখুন — যদি কোনো <span class='k'>শত্রু</span> আপনার জাহাজে পৌঁছে যায়, আপনি একটি শিল্ড হারাবেন।",
+      startBtn: "ব্রিচে প্রবেশ করুন",
+      volLabel: "মিউজিক ভলিউম:",
+      lastRun: "শেষ রান:",
+      scoreLabel: "স্কোর",
+      waveLabel: "ওয়েভ",
+      shieldsLabel: "শিল্ডস",
+      quitBtn: "প্রস্থান",
+      hint: "অ্যারো কি / স্পেসবারও কাজ করে",
+      leftBtn: "◀️ বামে",
+      fireBtn: "ফায়ার",
+      rightBtn: "ডানে ▶️"
+    },
+    as: {
+      tagline: "ওচৰ চাপি অহা শত্ৰুৰ ২০ টা তৰংগ",
+      langLabel: "আপোনাৰ ভাষা বাছনি কৰক",
+      brief: "<b>◀️ / ▶️</b> দ্বাৰা নিয়ন্ত্ৰণ কৰক বা তলৰ বুটামবোৰ ব্যৱহাৰ কৰক।<br>গুলী চলাবলৈ <b>FIRE</b> বা <b>SPACEBAR</b> টিপক।<br>অৱস্থান বৰ্তাই ৰাখক — যদি কোনো <span class='k'>শত্ৰুৱে</span> আপোনাৰ জাহাজ পায়, আপুনি এটা শ্বিল্ড হেৰুৱাব।",
+      startBtn: "ব্ৰিচত প্ৰৱেশ কৰক",
+      volLabel: "সংগীত ভলিউম:",
+      lastRun: "শেষ ৰান:",
+      scoreLabel: "স্ক’ৰ",
+      waveLabel: "ৱেভ",
+      shieldsLabel: "শ্বিল্ডচ",
+      quitBtn: "প্ৰস্থান",
+      hint: "এৰো কি / স্পেচবাৰেও কাম কৰে",
+      leftBtn: "◀️ বাওঁফাল",
+      fireBtn: "ফায়াৰ",
+      rightBtn: "সোঁফাল ▶️"
+    }
+  };
+
+  function changeLanguage(lang) {
+    const t = translations[lang];
+    if(!t) return;
+    document.getElementById('txt-tagline').textContent = t.tagline;
+    document.getElementById('txt-lang-label').textContent = t.langLabel;
+    document.getElementById('txt-brief').innerHTML = t.brief;
+    document.getElementById('txt-start-btn').textContent = t.startBtn;
+    document.getElementById('txt-vol-label').textContent = t.volLabel;
+    document.getElementById('txt-last-run').textContent = t.lastRun;
+    document.getElementById('txt-score-label').textContent = t.scoreLabel;
+    document.getElementById('txt-wave-label').textContent = t.waveLabel;
+    document.getElementById('txt-shields-label').textContent = t.shieldsLabel;
+    document.getElementById('txt-quit-btn').textContent = t.quitBtn;
+    document.getElementById('txt-hint').textContent = t.hint;
+    document.getElementById('btn-left').textContent = t.leftBtn;
+    document.getElementById('btn-fire').textContent = t.fireBtn;
+    document.getElementById('btn-right').textContent = t.rightBtn;
+  }
+
+  /* =========================================================
+     AUDIO CONTROLS
+  ========================================================= */
+  const bgMusic = document.getElementById('bg-music');
+  bgMusic.volume = 0.5;
+
+  function adjustVolume(amount) {
+    let newVol = bgMusic.volume + amount;
+    if(newVol > 1) newVol = 1;
+    if(newVol < 0) newVol = 0;
+    bgMusic.volume = newVol;
+    document.getElementById('vol-display').textContent = Math.round(newVol * 100) + '%';
+  }
+
+  // Ensure music starts playing upon user interaction
+  window.addEventListener('click', () => {
+    if(bgMusic.paused) {
+      bgMusic.play().catch(e => console.log('Audio autoplay blocked', e));
+    }
+  }, { once: true });
+</script>
+
+<script>
+(function(){
+  "use strict";
+
+  /* =========================================================
+     CONFIG
+  ========================================================= */
+  const FIELD_HALF_W   = 6.0;
+  const ROWS = 4, COLS = 6;
+  const ROW_COLORS = [0xff5d73, 0xffb84f, 0xffe27d, 0x7dffb0]; // top -> bottom
+  const ROW_SCORE   = [40, 30, 20, 10];
+  const ALIEN_START_Z   = -14;
+  const PLAYER_Z        = 6.2;
+  const BREACH_Z        = PLAYER_Z - 1.1;
+  const PLAYER_SPEED    = 8.5;
+  const PLAYER_LASER_SPD= 15;
+  const FIRE_COOLDOWN   = 0.24;
+  const HIT_RADIUS      = 0.62;
+  const MAX_LIVES       = 3;
+  const MAX_WAVES       = 20;
+
+  /* =========================================================
+     DOM
+  ========================================================= */
+  const canvas = document.getElementById('gameCanvas');
+  const wrap   = document.getElementById('canvas-wrap');
+  const scoreEl= document.getElementById('score');
+  const waveEl = document.getElementById('wave');
+  const livesEl= document.getElementById('lives');
+  const bannerEl = document.getElementById('banner');
+  const flashEl  = document.getElementById('flash-overlay');
+  const menuScreen = document.getElementById('menu-screen');
+  const gameScreen = document.getElementById('game-screen');
+  const bestLine = document.getElementById('best-score-line');
+  const bestVal  = document.getElementById('best-score-val');
+
+  /* =========================================================
+     THREE SETUP
+  ========================================================= */
+  const scene = new THREE.Scene();
+  scene.background = new THREE.Color(0x05060f);
+  scene.fog = new THREE.FogExp2(0x05060f, 0.052);
+
+  const camera = new THREE.PerspectiveCamera(55, 1, 0.1, 100);
+  const camBaseX = 0, camBaseY = 5.4, camBaseZ = 10.5;
+  camera.position.set(camBaseX, camBaseY, camBaseZ);
+  camera.lookAt(0, 1.2, -4);
+
+  const renderer = new THREE.WebGLRenderer({ canvas, antialias:true, alpha:false });
+  renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
+
+  function resizeRenderer(){
+    const w = wrap.clientWidth, h = wrap.clientHeight;
+    if(w === 0 || h === 0) return;
+    renderer.setSize(w, h, false);
+    camera.aspect = w / h;
+    camera.updateProjectionMatrix();
+  }
+  window.addEventListener('resize', resizeRenderer);
+
+  /* ---- lights ---- */
+  scene.add(new THREE.AmbientLight(0x33406b, 1.1));
+  const keyLight = new THREE.DirectionalLight(0xbcd8ff, 0.9);
+  keyLight.position.set(2, 8, 6);
+  scene.add(keyLight);
+  const rimLight = new THREE.PointLight(0x52d9ff, 1.4, 30);
+  rimLight.position.set(0, 3, 10);
+  scene.add(rimLight);
+
+  /* ---- glow sprite texture generator ---- */
+  function makeGlowTexture(hex){
+    const size = 128;
+    const c = document.createElement('canvas');
+    c.width = c.height = size;
+    const ctx = c.getContext('2d');
+    const col = new THREE.Color(hex);
+    const r = Math.floor(col.r*255), g = Math.floor(col.g*255), b = Math.floor(col.b*255);
+    const grad = ctx.createRadialGradient(size/2,size/2,0,size/2,size/2,size/2);
+    grad.addColorStop(0, 'rgba('+r+','+g+','+b+',0.95)');
+    grad.addColorStop(0.4, 'rgba('+r+','+g+','+b+',0.45)');
+    grad.addColorStop(1, 'rgba('+r+','+g+','+b+',0)');
+    ctx.fillStyle = grad;
+    ctx.fillRect(0,0,size,size);
+    return new THREE.CanvasTexture(c);
+  }
+  const glowTexPlasma = makeGlowTexture(0x52d9ff);
+  const glowTexHostile= makeGlowTexture(0xff5d73);
+  const glowTexWhite  = makeGlowTexture(0xffffff);
+
+  function makeGlowSprite(tex, size, opacity){
+    const mat = new THREE.SpriteMaterial({ map:tex, transparent:true, depthWrite:false, blending:THREE.AdditiveBlending, opacity: opacity===undefined?1:opacity });
+    const spr = new THREE.Sprite(mat);
+    spr.scale.set(size, size, 1);
+    return spr;
+  }
+
+  /* =========================================================
+     STARFIELD
+  ========================================================= */
+  const STAR_COUNT = 900;
+  const starGeo = new THREE.BufferGeometry();
+  const starPos = new Float32Array(STAR_COUNT*3);
+  for(let i=0;i<STAR_COUNT;i++){
+    starPos[i*3+0] = (Math.random()-0.5)*60;
+    starPos[i*3+1] = (Math.random())*30 - 4;
+    starPos[i*3+2] = (Math.random()-0.5)*80 - 10;
+  }
+  starGeo.setAttribute('position', new THREE.BufferAttribute(starPos, 3));
+  const starMat = new THREE.PointsMaterial({ color:0xaecbff, size:0.09, transparent:true, opacity:0.75, sizeAttenuation:true });
+  const stars = new THREE.Points(starGeo, starMat);
+  scene.add(stars);
+
+  const nebulaGeo = new THREE.PlaneGeometry(70, 40);
+  const nebulaMat = new THREE.MeshBasicMaterial({ color:0x1a1440, transparent:true, opacity:0.35, depthWrite:false });
+  const nebula = new THREE.Mesh(nebulaGeo, nebulaMat);
+  nebula.position.set(0, 8, -35);
+  scene.add(nebula);
+
+  /* =========================================================
+     PLAYER SHIP
+  ========================================================= */
+  const player = new THREE.Group();
+  const hullMat = new THREE.MeshStandardMaterial({ color:0x8fe9ff, emissive:0x1c6a80, emissiveIntensity:0.6, metalness:0.35, roughness:0.35 });
+  const wingMat = new THREE.MeshStandardMaterial({ color:0x1c2b52, metalness:0.5, roughness:0.5 });
+
+  const nose = new THREE.Mesh(new THREE.ConeGeometry(0.42, 1.3, 4), hullMat);
+  nose.rotation.x = Math.PI/2;
+  nose.rotation.y = Math.PI/4;
+  player.add(nose);
+
+  const wingL = new THREE.Mesh(new THREE.BoxGeometry(1.1, 0.08, 0.6), wingMat);
+  wingL.position.set(-0.75, -0.05, 0.25);
+  wingL.rotation.z = 0.15;
+  player.add(wingL);
+  const wingR = wingL.clone();
+  wingR.position.x = 0.75;
+  wingR.rotation.z = -0.15;
+  player.add(wingR);
+
+  const engineGlow = makeGlowSprite(glowTexPlasma, 1.4, 0.9);
+  engineGlow.position.set(0, 0, 0.85);
+  player.add(engineGlow);
+
+  const playerLight = new THREE.PointLight(0x52d9ff, 1.2, 6);
+  playerLight.position.set(0,0.3,0.5);
+  player.add(playerLight);
+
+  player.position.set(0, 0.4, PLAYER_Z);
+  scene.add(player);
+
+  /* =========================================================
+     ALIENS
+  ========================================================= */
+  let aliens = [];
+  let alienDir = 1;
+  let alienSpeed = 1.3;
+  let alienStepZ = 0.75;
+  let wave = 1;
+
+  function waveProgress(w){
+    return Math.max(0, Math.min(1, (w-1) / (MAX_WAVES-1)));
+  }
+
+  let enemyFireChance = 0.35;
+  let enemyFireInterval = 0.6;
+  let enemyLaserSpeed = 7.0;
+
+  const alienGeoTop = new THREE.IcosahedronGeometry(0.42, 0);
+  const alienGeoMid = new THREE.OctahedronGeometry(0.42, 0);
+  const alienGeoLow = new THREE.BoxGeometry(0.62, 0.5, 0.5);
+
+  function alienGeoForRow(r){
+    if(r===0) return alienGeoTop;
+    if(r===ROWS-1) return alienGeoLow;
+    return alienGeoMid;
+  }
+
+  function buildWave(){
+    aliens.forEach(a => scene.remove(a.mesh));
+    aliens = [];
+    const spacingX = (FIELD_HALF_W*1.7) / (COLS-1);
+    const spacingY = 0.95;
+    for(let r=0;r<ROWS;r++){
+      for(let c=0;c<COLS;c++){
+        const color = ROW_COLORS[r];
+        const mat = new THREE.MeshStandardMaterial({ color, emissive:color, emissiveIntensity:0.55, metalness:0.2, roughness:0.5 });
+        const mesh = new THREE.Mesh(alienGeoForRow(r), mat);
+        const x = (c - (COLS-1)/2) * spacingX;
+        const y = 3.0 - r*spacingY;
+        mesh.position.set(x, y, ALIEN_START_Z);
+        mesh.userData.spin = (Math.random()-0.5)*0.8;
+        scene.add(mesh);
+        aliens.push({ mesh, row:r, alive:true, bobOffset: Math.random()*Math.PI*2 });
+      }
+    }
+    alienDir = 1;
+
+    const p = waveProgress(wave);
+    alienSpeed        = 1.3 + p * 3.4;
+    alienStepZ         = 0.75 + p * 0.55;
+    enemyFireChance    = 0.35 + p * 0.5;
+    enemyFireInterval  = 0.6 - p * 0.32;
+    enemyLaserSpeed    = 7.0 + p * 3.5;
+  }
+
+  /* =========================================================
+     LASERS
+  ========================================================= */
+  let playerLasers = [];
+  let enemyLasers = [];
+  const laserGeo = new THREE.CylinderGeometry(0.05, 0.05, 0.55, 6);
+
+  function spawnPlayerLaser(){
+    const mat = new THREE.MeshBasicMaterial({ color:0x9fe9ff });
+    const mesh = new THREE.Mesh(laserGeo, mat);
+    mesh.rotation.x = Math.PI/2;
+    mesh.position.set(player.position.x, player.position.y+0.1, player.position.z-0.9);
+    const glow = makeGlowSprite(glowTexPlasma, 0.7, 0.85);
+    mesh.add(glow);
+    scene.add(mesh);
+    playerLasers.push(mesh);
+  }
+
+  function spawnEnemyLaser(fromMesh){
+    const mat = new THREE.MeshBasicMaterial({ color:0xff8a9a });
+    const mesh = new THREE.Mesh(laserGeo, mat);
+    mesh.rotation.x = Math.PI/2;
+    mesh.position.set(fromMesh.position.x, fromMesh.position.y, fromMesh.position.z+0.5);
+    const glow = makeGlowSprite(glowTexHostile, 0.6, 0.85);
+    mesh.add(glow);
+    scene.add(mesh);
+    enemyLasers.push(mesh);
+  }
+
+  /* =========================================================
+     PARTICLES
+  ========================================================= */
+  let particles = [];
+  function spawnExplosion(pos, colorHex, count){
+    count = count || 12;
+    for(let i=0;i<count;i++){
+      const tex = Math.random() < 0.5 ? makeGlowTexture(colorHex) : glowTexWhite;
+      const spr = makeGlowSprite(tex, 0.35 + Math.random()*0.3, 1);
+      spr.position.copy(pos);
+      const speed = 2 + Math.random()*3;
+      const theta = Math.random()*Math.PI*2;
+      const phi = Math.random()*Math.PI;
+      spr.userData.vel = new THREE.Vector3(
+        Math.sin(phi)*Math.cos(theta)*speed,
+        Math.cos(phi)*speed*0.6 + 1.0,
+        Math.sin(phi)*Math.sin(theta)*speed
+      );
+      spr.userData.life = 0.55 + Math.random()*0.3;
+      spr.userData.age = 0;
+      scene.add(spr);
+      particles.push(spr);
+    }
+  }
+
+  /* =========================================================
+     GAME STATE
+  ========================================================= */
+  let running = false;
+  let score = 0;
+  let lives = MAX_LIVES;
+  let invulnTimer = 0;
+  let fireTimer = 0;
+  let enemyFireTimer = 0;
+  let cameraShake = 0;
+  const clock = new THREE.Clock();
+
+  const keys = { left:false, right:false };
+  let wantFire = false;
+
+  function updateLivesUI(){
+    livesEl.innerHTML = '';
+    for(let i=0;i<MAX_LIVES;i++){
+      const d = document.createElement('div');
+      d.className = 'life-dot' + (i < lives ? '' : ' lost');
+      livesEl.appendChild(d);
+    }
+  }
+
+  function showBanner(text, color){
+    bannerEl.textContent = text;
+    bannerEl.style.color = color;
+    bannerEl.classList.add('show');
+    setTimeout(()=> bannerEl.classList.remove('show'), 1400);
+  }
+
+  function flashHit(){
+    flashEl.style.transition = 'none';
+    flashEl.style.opacity = '0.55';
+    requestAnimationFrame(()=>{
+      flashEl.style.transition = 'opacity 0.4s ease';
+      flashEl.style.opacity = '0';
+    });
+  }
+
+  function shakeCamera(intensity){
+    cameraShake = Math.max(cameraShake, intensity);
+  }
+
+  function resetPlayer(){
+    player.position.x = 0;
+    player.rotation.z = 0;
+  }
+
+  window.startGame = function(){
+    menuScreen.style.display = 'none';
+    gameScreen.style.display = 'block';
+    resizeRenderer();
+
+    score = 0; lives = MAX_LIVES; wave = 1;
+    scoreEl.textContent = '0';
+    waveEl.textContent = '1 / ' + MAX_WAVES;
+    updateLivesUI();
+
+    playerLasers.forEach(m => scene.remove(m)); playerLasers = [];
+    enemyLasers.forEach(m => scene.remove(m)); enemyLasers = [];
+    particles.forEach(p => scene.remove(p)); particles = [];
+
+    resetPlayer();
+    buildWave();
+
+    running = true;
+    clock.getDelta();
+    requestAnimationFrame(loop);
+  };
+
+  window.quitGame = function(){
+    running = false;
+    gameScreen.style.display = 'none';
+    menuScreen.style.display = 'block';
+  };
+
+  function nextWave(){
+    wave += 1;
+    if(wave > MAX_WAVES){
+      endGame(true);
+      return;
+    }
+    waveEl.textContent = wave + ' / ' + MAX_WAVES;
+    showBanner('WAVE ' + wave, '#7dffb0');
+    buildWave();
+  }
+
+  function endGame(win){
+    running = false;
+    bestVal.textContent = String(score);
+    bestLine.style.display = 'block';
+    showBanner(win ? 'ALL WAVES CLEARED' : 'HULL LOST', win ? '#7dffb0' : '#ff5d73');
+    setTimeout(()=>{
+      gameScreen.style.display = 'none';
+      menuScreen.style.display = 'block';
+    }, 1600);
+  }
+
+  function loseLife(){
+    if(invulnTimer > 0) return;
+    lives -= 1;
+    updateLivesUI();
+    flashHit();
+    shakeCamera(0.5);
+    spawnExplosion(player.position.clone(), 0xff5d73, 16);
+    invulnTimer = 1.6;
+    if(lives <= 0){
+      endGame(false);
+    }
+  }
+
+  /* =========================================================
+     INPUT
+  ========================================================= */
+  window.addEventListener('keydown', (e)=>{
+    if(e.code === 'ArrowLeft') keys.left = true;
+    if(e.code === 'ArrowRight') keys.right = true;
+    if(e.code === 'Space'){ e.preventDefault(); wantFire = true; }
+  });
+  window.addEventListener('keyup', (e)=>{
+    if(e.code === 'ArrowLeft') keys.left = false;
+    if(e.code === 'ArrowRight') keys.right = false;
+    if(e.code === 'Space') wantFire = false;
+  });
+
+  function bindHold(btnId, onDown, onUp){
+    const el = document.getElementById(btnId);
+    const down = (e)=>{ e.preventDefault(); el.classList.add('active'); onDown(); };
+    const up = (e)=>{ el.classList.remove('active'); onUp(); };
+    el.addEventListener('mousedown', down);
+    el.addEventListener('touchstart', down, {passive:false});
+    el.addEventListener('mouseup', up);
+    el.addEventListener('mouseleave', up);
+    el.addEventListener('touchend', up);
+    el.addEventListener('touchcancel', up);
+  }
+  bindHold('btn-left',  ()=>keys.left=true,  ()=>keys.left=false);
+  bindHold('btn-right', ()=>keys.right=true, ()=>keys.right=false);
+  bindHold('btn-fire',  ()=>wantFire=true,   ()=>wantFire=false);
+
+  /* =========================================================
+     MAIN LOOP
+  ========================================================= */
+  function loop(){
+    if(!running) return;
+    const dt = Math.min(clock.getDelta(), 0.05);
+    const t = performance.now()/1000;
+
+    let moveDir = 0;
+    if(keys.left) moveDir -= 1;
+    if(keys.right) moveDir += 1;
+    player.position.x += moveDir * PLAYER_SPEED * dt;
+    player.position.x = Math.max(-5.6, Math.min(5.6, player.position.x));
+    const targetBank = -moveDir * 0.35;
+    player.rotation.z += (targetBank - player.rotation.z) * Math.min(1, dt*8);
+    engineGlow.material.opacity = 0.75 + Math.sin(t*14)*0.15;
+
+    if(invulnTimer > 0){
+      invulnTimer -= dt;
+      const blink = Math.sin(t*28) > 0;
+      player.visible = blink;
+    } else {
+      player.visible = true;
+    }
+
+    fireTimer -= dt;
+    if(wantFire && fireTimer <= 0 && playerLasers.length < 5){
+      spawnPlayerLaser();
+      fireTimer = FIRE_COOLDOWN;
+    }
+
+    for(let i=playerLasers.length-1;i>=0;i--){
+      const l = playerLasers[i];
+      l.position.z -= PLAYER_LASER_SPD * dt;
+      if(l.position.z < ALIEN_START_Z - 2){
+        scene.remove(l); playerLasers.splice(i,1);
+      }
+    }
+
+    const aliveAliens = aliens.filter(a=>a.alive);
+    if(aliveAliens.length === 0){
+      nextWave();
+      if(!running) return;
+    } else {
+      let hitBound = false;
+      aliveAliens.forEach(a=>{
+        a.mesh.position.x += alienSpeed * alienDir * dt;
+        a.mesh.rotation.y += a.mesh.userData.spin * dt;
+        a.mesh.position.y += Math.sin(t*2 + a.bobOffset) * 0.002;
+        if(a.mesh.position.x <= -FIELD_HALF_W || a.mesh.position.x >= FIELD_HALF_W) hitBound = true;
+      });
+      if(hitBound){
+        alienDir *= -1;
+        aliveAliens.forEach(a=>{
+          a.mesh.position.z += alienStepZ;
+          if(a.mesh.position.z >= BREACH_Z){
+            endGame(false);
+          }
+        });
+      }
+
+      enemyFireTimer -= dt;
+      if(enemyFireTimer <= 0 && enemyLasers.length < 4){
+        if(Math.random() < enemyFireChance){
+          const shooter = aliveAliens[Math.floor(Math.random()*aliveAliens.length)];
+          spawnEnemyLaser(shooter.mesh);
+        }
+        enemyFireTimer = enemyFireInterval;
+      }
+    }
+
+    for(let i=enemyLasers.length-1;i>=0;i--){
+      const l = enemyLasers[i];
+      l.position.z += enemyLaserSpeed * dt;
+      if(l.position.z > PLAYER_Z + 3){
+        scene.remove(l); enemyLasers.splice(i,1);
+        continue;
+      }
+      if(invulnTimer <= 0 &&
+         Math.abs(l.position.x - player.position.x) < HIT_RADIUS &&
+         Math.abs(l.position.z - player.position.z) < HIT_RADIUS){
+        scene.remove(l); enemyLasers.splice(i,1);
+        loseLife();
+      }
+    }
+
+    for(let li=playerLasers.length-1; li>=0; li--){
+      const l = playerLasers[li];
+      let hit = false;
+      for(let ai=0; ai<aliens.length; ai++){
+        const a = aliens[ai];
+        if(!a.alive) continue;
+        if(Math.abs(l.position.x - a.mesh.position.x) < HIT_RADIUS &&
+           Math.abs(l.position.z - a.mesh.position.z) < HIT_RADIUS){
+          a.alive = false;
+          scene.remove(a.mesh);
+          spawnExplosion(a.mesh.position.clone(), ROW_COLORS[a.row], 10);
+          score += ROW_SCORE[a.row];
+          scoreEl.textContent = String(score);
+          hit = true;
+          break;
+        }
+      }
+      if(hit){ scene.remove(l); playerLasers.splice(li,1); }
+    }
+
+    for(let i=particles.length-1;i>=0;i--){
+      const p = particles[i];
+      p.userData.age += dt;
+      const lifeT = p.userData.age / p.userData.life;
+      if(lifeT >= 1){ scene.remove(p); particles.splice(i,1); continue; }
+      p.position.addScaledVector(p.userData.vel, dt);
+      p.userData.vel.y -= 4*dt;
+      p.material.opacity = 1 - lifeT;
+    }
+
+    stars.rotation.y += dt*0.01;
+    stars.position.z += dt*0.6;
+    if(stars.position.z > 20) stars.position.z = 0;
+
+    cameraShake *= Math.max(0, 1 - dt*6);
+    const shakeX = (Math.random()-0.5) * cameraShake;
+    const shakeY = (Math.random()-0.5) * cameraShake;
+    camera.position.x = camBaseX + shakeX;
+    camera.position.y = camBaseY + shakeY;
+    camera.position.z = camBaseZ;
+    camera.lookAt(0, 1.2, -4);
+
+    renderer.render(scene, camera);
+    requestAnimationFrame(loop);
+  }
+
+  resizeRenderer();
+  renderer.render(scene, camera);
+})();
+</script>
+</body>
+</html>

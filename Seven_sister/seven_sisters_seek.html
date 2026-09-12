@@ -1,0 +1,342 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>North East India Memory Match (Progressive Levels 1-10)</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(rgba(17, 75, 62, 0.8), rgba(7, 46, 37, 0.8)), url('seven_sister_background.jpg');
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            color: #fff;
+            padding: 20px;
+        }
+
+        .score-board {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 15px;
+            font-size: 1.1rem;
+            margin-bottom: 20px;
+            background: rgba(255, 255, 255, 0.08);
+            padding: 12px 24px;
+            border-radius: 20px;
+            backdrop-filter: blur(5px);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+        }
+
+        .ai-status {
+            font-weight: bold;
+            color: #00ffcc;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .game-container {
+            display: grid;
+            gap: 10px;
+            width: 100%;
+            max-width: 650px;
+            padding: 10px;
+            background: rgba(0, 0, 0, 0.2);
+            border-radius: 16px;
+        }
+
+        .card {
+            aspect-ratio: 1;
+            position: relative;
+            cursor: pointer;
+            transform-style: preserve-3d;
+            transition: transform 0.4s ease-out;
+        }
+
+        .card.flipped {
+            transform: rotateY(180deg);
+        }
+
+        .card-face {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            backface-visibility: hidden;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+            padding: 4px;
+            text-align: center;
+        }
+
+        .card-back {
+            background: linear-gradient(45deg, #2e7d32, #f5af19);
+            border: 2px solid #fff;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .card-back::after {
+            content: "🏔️";
+            font-size: 1.5rem;
+        }
+
+        .card-front {
+            background-color: #ffffff;
+            color: #1a1a1a;
+            transform: rotateY(180deg);
+            border: 2px solid #2e7d32;
+        }
+
+        .emoji-span {
+            font-size: 1.8rem;
+            margin-bottom: 2px;
+        }
+
+        .label-span {
+            font-size: 0.65rem;
+            font-weight: bold;
+            color: #444;
+            line-height: 1.1;
+        }
+
+        .btn-restart {
+            margin-top: 20px;
+            padding: 12px 30px;
+            font-size: 1rem;
+            font-weight: bold;
+            color: #fff;
+            background: #e67e22;
+            border: none;
+            border-radius: 25px;
+            cursor: pointer;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.2);
+            transition: all 0.2s;
+        }
+
+        .btn-restart:hover {
+            background-color: #d35400;
+            transform: translateY(-2px);
+        }
+
+        @media (max-width: 500px) {
+            .emoji-span { font-size: 1.3rem; }
+            .label-span { display: none; }
+            .card-back::after { font-size: 1rem; }
+            .score-board { font-size: 0.9rem; padding: 8px 16px; }
+        }
+    </style>
+
+<script src="../api-config.js"></script>
+<script src="../monorom-core.js"></script>
+<script src="../monorom-language.js"></script>
+</head>
+<body>
+
+    <div class="score-board">
+        <div>Level: <span id="currentLevel" class="ai-status">1</span>/10</div>
+        <div>Moves: <span id="moves">0</span></div>
+        <div>Matches: <span id="matches">0</span>/<span id="totalMatchesTarget">3</span></div>
+    </div>
+
+    <div class="game-container" id="gameBoard"></div>
+
+    <button class="btn-restart" onclick="resetToLevel1()">Restart Game</button>
+
+    <script>
+        const assetPool = [
+            { emoji: '🦏', label: 'Rhino (Assam)' },
+            { emoji: '🐼', label: 'Red Panda (Sikkim)' },
+            { emoji: '🪵', label: 'Root Bridge (Meghalaya)' },
+            { emoji: '🛖', label: 'Kangla Fort (Manipur)' },
+            { emoji: '🥁', label: 'Bihu/Naga Drum' },
+            { emoji: '🎋', label: 'Bamboo Groves' },
+            { emoji: '🍃', label: 'Assam Tea' },
+            { emoji: '🌶️', label: 'Bhut Jolokia' },
+            { emoji: '🦅', label: 'Hornbill (Nagaland)' },
+            { emoji: '🛶', label: 'Loktak Lake' },
+            { emoji: '🏔️', label: 'Kanchenjunga' },
+            { emoji: '🧥', label: 'Muga Silk Textile' },
+            { emoji: '🌸', label: 'Fox Orchid (Arunachal)' },
+            { emoji: '🍍', label: 'Queen Pineapple (Tripura)' },
+            { emoji: '🐘', label: 'Wild Elephant' },
+            { emoji: '🐅', label: 'Royal Bengal Tiger' }
+        ];
+
+        let level = 1;
+        let gamePool = [];
+        let flippedCards = [];
+        let moves = 0;
+        let matches = 0;
+        let lockBoard = false;
+
+        const gameBoard = document.getElementById('gameBoard');
+        const movesDisplay = document.getElementById('moves');
+        const matchesDisplay = document.getElementById('matches');
+        const totalMatchesTarget = document.getElementById('totalMatchesTarget');
+        const levelDisplay = document.getElementById('currentLevel');
+
+        function shuffle(array) {
+            for (let i = array.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [array[i], array[j]] = [array[j], array[i]];
+            }
+            return array;
+        }
+
+        // Define layout configuration per level (Level 1 to 10)
+        // Returns { pairs, cols }
+        function getLevelConfig(lvl) {
+            switch(lvl) {
+                case 1:  return { pairs: 3, cols: 3 }; // 6 cards (3x2)
+                case 2:  return { pairs: 4, cols: 4 }; // 8 cards (4x2)
+                case 3:  return { pairs: 5, cols: 5 }; // 10 cards (5x2)
+                case 4:  return { pairs: 6, cols: 4 }; // 12 cards (4x3)
+                case 5:  return { pairs: 7, cols: 4 }; // 14 cards (4x3-ish)
+                case 6:  return { pairs: 8, cols: 4 }; // 16 cards (4x4)
+                case 7:  return { pairs: 9, cols: 6 }; // 18 cards (6x3)
+                case 8:  return { pairs: 10, cols: 5 }; // 20 cards (5x4)
+                case 9:  return { pairs: 12, cols: 6 }; // 24 cards (6x4)
+                case 10: return { pairs: 15, cols: 6 }; // 30 cards (6x5)
+                default: return { pairs: 15, cols: 6 };
+            }
+        }
+
+        function initGame() {
+            const config = getLevelConfig(level);
+            
+            levelDisplay.textContent = level;
+            totalMatchesTarget.textContent = config.pairs;
+            moves = 0;
+            matches = 0;
+            movesDisplay.textContent = moves;
+            matchesDisplay.textContent = matches;
+            flippedCards = [];
+            lockBoard = false;
+
+            gameBoard.style.gridTemplateColumns = `repeat(${config.cols}, 1fr)`;
+
+            const selectedAssets = assetPool.slice(0, config.pairs);
+            gamePool = [...selectedAssets, ...selectedAssets];
+            shuffle(gamePool);
+
+            gameBoard.innerHTML = '';
+            gamePool.forEach((item) => {
+                const card = document.createElement('div');
+                card.classList.add('card');
+                card.dataset.emoji = item.emoji;
+
+                const cardBack = document.createElement('div');
+                cardBack.classList.add('card-face', 'card-back');
+
+                const cardFront = document.createElement('div');
+                cardFront.classList.add('card-face', 'card-front');
+
+                const emojiSpan = document.createElement('span');
+                emojiSpan.classList.add('emoji-span');
+                emojiSpan.textContent = item.emoji;
+
+                const labelSpan = document.createElement('span');
+                labelSpan.classList.add('label-span');
+                labelSpan.textContent = item.label;
+
+                cardFront.appendChild(emojiSpan);
+                cardFront.appendChild(labelSpan);
+
+                card.appendChild(cardBack);
+                card.appendChild(cardFront);
+
+                card.addEventListener('click', flipCard);
+                gameBoard.appendChild(card);
+            });
+        }
+
+        function flipCard() {
+            if (lockBoard) return;
+            if (this === flippedCards[0]) return;
+
+            this.classList.add('flipped');
+            flippedCards.push(this);
+
+            if (flippedCards.length === 2) {
+                moves++;
+                movesDisplay.textContent = moves;
+                checkForMatch();
+            }
+        }
+
+        function checkForMatch() {
+            const [card1, card2] = flippedCards;
+            const isMatch = card1.dataset.emoji === card2.dataset.emoji;
+
+            if (isMatch) {
+                disableCards();
+            } else {
+                unflipCards();
+            }
+        }
+
+        function disableCards() {
+            flippedCards[0].removeEventListener('click', flipCard);
+            flippedCards[1].removeEventListener('click', flipCard);
+
+            matches++;
+            matchesDisplay.textContent = matches;
+            
+            const targetPairs = parseInt(totalMatchesTarget.textContent);
+            resetBoard();
+
+            if (matches === targetPairs) {
+                setTimeout(() => {
+                    if (level < 10) {
+                        alert(`🎉 Awesome! Level ${level} completed in ${moves} moves. Advancing to Level ${level + 1}!`);
+                        level++;
+                        initGame();
+                    } else {
+                        alert(`🏆 Incredible! You have successfully beaten all 10 levels of the North East India Memory Match!`);
+                        level = 1;
+                        initGame();
+                    }
+                }, 500);
+            }
+        }
+
+        function unflipCards() {
+            lockBoard = true;
+
+            setTimeout(() => {
+                flippedCards[0].classList.remove('flipped');
+                flippedCards[1].classList.remove('flipped');
+                resetBoard();
+            }, 800);
+        }
+
+        function resetBoard() {
+            [flippedCards, lockBoard] = [[], false];
+        }
+
+        function resetToLevel1() {
+            level = 1;
+            initGame();
+        }
+
+        initGame();
+    </script>
+</body>
+</html>

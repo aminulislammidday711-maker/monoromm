@@ -1,0 +1,911 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1, user-scalable=no">
+<title>Ball Sort Puzzle — Memory Game</title>
+<style>
+  :root{
+    --panel: rgba(255, 248, 239, 0.82);
+    --ink: #3b2412;
+    --muted: #7a6a58;
+    --wood-btn: #6b3a1f;    
+    --wood-btn-light: #844a29; 
+    --good: #4caf6b;        
+    --warn: #e08a3c;        
+    --radius: 18px;
+    --tube-w: clamp(38px, 8.2vw, 62px);
+    --tube-gap: 10px;
+  }
+  *{ box-sizing: border-box; }
+  html,body{
+    margin:0; padding:0; min-height:100%;
+    background: url('background.jpg') center / cover no-repeat fixed;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif;
+    color: var(--ink);
+    -webkit-tap-highlight-color: transparent;
+    user-select: none;
+  }
+  #app{
+    display:flex; flex-direction:column; align-items:center; justify-content:center;
+    min-height:100vh;
+    padding: 18px 12px 32px;
+  }
+
+  .subtitle{ color:#f0e2cf; font-size:16px; margin-bottom:14px; text-align:center; text-shadow: 0 1px 3px rgba(0,0,0,0.5); }
+
+  .card{
+    background: var(--panel);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    border-radius: var(--radius);
+    box-shadow: 0 6px 20px rgba(0,0,0,0.35);
+    padding: 20px;
+    width: 100%;
+    max-width: 480px;
+  }
+
+  button{
+    font-family: inherit;
+    font-size: 18px;
+    font-weight: 700;
+    border: none;
+    border-radius: 14px;
+    padding: 14px 18px;
+    cursor: pointer;
+    color: white;
+    background: var(--wood-btn);
+    min-height: 52px;
+  }
+  button.secondary{ background: var(--wood-btn-light); color: white; }
+  button.warn{ background: var(--warn); color: white; }
+  button.big{ font-size: 22px; padding: 18px 22px; width:100%; }
+  button:disabled{ opacity:0.4; cursor: default; }
+  button:active{ transform: scale(0.97); }
+
+  .row{ display:flex; gap:12px; width:100%; }
+  .row > button{ flex:1; }
+
+  /* ---------- Start screen ---------- */
+  #startScreen{
+    display:flex; flex-direction:column; align-items:center; justify-content:center; width:100%;
+  }
+  #startScreen .card{ display:flex; flex-direction:column; gap:14px; text-align:center; }
+  .level-badge{
+    display:inline-block; background: var(--wood-btn); color: white;
+    padding: 8px 18px; border-radius: 999px; font-weight:700; font-size:18px;
+  }
+  details{ text-align:left; margin-top: 8px; }
+  summary{ cursor:pointer; color: var(--muted); font-size:15px; padding:6px 0; }
+  .caregiver-box{ background:rgba(242, 236, 224, 0.8); border-radius:12px; padding:12px; margin-top:8px; }
+  .caregiver-box label{ font-size:15px; display:flex; align-items:center; gap:8px; margin:10px 0 4px; }
+  .caregiver-box select{ font-size:16px; padding:8px; width:100%; border-radius:8px; border:1px solid #ccc; }
+
+  /* ---------- Loading screen ---------- */
+  #loadingScreen{
+    display:none; flex-direction:column; align-items:center; justify-content:center;
+    min-height: 60vh; gap: 18px;
+  }
+  .spinner{
+    width: 64px; height: 64px; border-radius: 50%;
+    border: 8px solid rgba(255,255,255,0.25);
+    border-top-color: var(--warn);
+    animation: spin 0.9s linear infinite;
+  }
+  @keyframes spin{ to{ transform: rotate(360deg); } }
+  .bouncing-balls{ display:flex; gap: 10px; }
+  .bouncing-balls span{
+    width: 20px; height:20px; border-radius:50%; display:inline-block;
+    animation: bounce 0.9s ease-in-out infinite;
+  }
+  .bouncing-balls span:nth-child(1){ background: var(--warn); animation-delay: 0s; }
+  .bouncing-balls span:nth-child(2){ background: var(--good); animation-delay: 0.15s; }
+  .bouncing-balls span:nth-child(3){ background: var(--wood-btn); animation-delay: 0.3s; }
+  .bouncing-balls span:nth-child(4){ background: #f2c744; animation-delay: 0.45s; }
+  @keyframes bounce{
+    0%, 100%{ transform: translateY(0); opacity:0.6; }
+    50%{ transform: translateY(-16px); opacity:1; }
+  }
+  #loadingScreen p{ color:#fff8ef; font-size:18px; font-weight:600; text-shadow: 0 1px 3px rgba(0,0,0,0.5); }
+
+  /* ---------- Game screen ---------- */
+  #gameScreen{
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    flex: 1;
+    /* Added a semi-transparent dark backing container specifically for the game area to boost contrast against the busy wallpaper */
+    background: rgba(25, 15, 8, 0.45);
+    backdrop-filter: blur(6px);
+    -webkit-backdrop-filter: blur(6px);
+    border-radius: 24px;
+    padding: 20px 10px;
+    margin: auto;
+    max-width: 680px;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+    border: 1px solid rgba(255, 255, 255, 0.12);
+  }
+  .topbar{
+    width:100%; max-width:640px; display:flex; justify-content:space-between; align-items:center;
+    margin-bottom: 10px; gap:6px; flex-wrap: wrap;
+  }
+  .topbar button{ background: rgba(0,0,0,0.3); color:#fff8ef; font-size:20px; padding:8px 12px; min-height:auto; border-radius:12px; backdrop-filter: blur(4px); }
+  .level-pill{
+    background: var(--wood-btn); color: white; font-weight:700; font-size:16px;
+    padding: 8px 16px; border-radius: 999px; white-space:nowrap;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.3);
+  }
+  .msg-banner{
+    min-height: 28px; font-size: 16px; color: #fff8ef; font-weight:600; text-align:center; margin-bottom: 6px;
+    text-shadow: 0 1px 3px rgba(0,0,0,0.6);
+  }
+
+  #tubesWrap{
+    display:flex; flex-wrap:wrap; justify-content:center; gap: var(--tube-gap);
+    width:100%; max-width:640px; padding: 10px 4px 20px;
+  }
+  .tube{
+    width: var(--tube-w);
+    height: 240px;
+    border: 4px solid rgba(255,255,255,0.85);
+    border-bottom-left-radius: 24px;
+    border-bottom-right-radius: 24px;
+    border-top-left-radius: 8px;
+    border-top-right-radius: 8px;
+    background: rgba(30, 18, 10, 0.4);
+    backdrop-filter: blur(3px);
+    display:flex; flex-direction: column-reverse; align-items:center;
+    padding: 6px 4px;
+    gap: 4px;
+    transition: transform 0.12s, border-color 0.12s, box-shadow 0.12s;
+    position: relative;
+  }
+  .tube.selected{
+    border-color: var(--warn);
+    transform: translateY(-10px);
+    box-shadow: 0 8px 18px rgba(0,0,0,0.6);
+  }
+  .tube.hint-from{ border-color: var(--good); box-shadow: 0 0 0 4px rgba(76,175,107,0.4); }
+  .tube.hint-to{ border-color: var(--warn); box-shadow: 0 0 0 4px rgba(224,138,60,0.4); }
+  .ball{
+    width: calc(var(--tube-w) - 18px); height: calc(var(--tube-w) - 18px); border-radius: 50%;
+    box-shadow: inset -4px -4px 8px rgba(0,0,0,0.35), inset 4px 4px 6px rgba(255,255,255,0.4);
+    flex-shrink: 0;
+    margin: 0;
+    will-change: transform;
+  }
+
+  .controls{
+    display:flex; gap: 10px; width:100%; max-width:640px; justify-content:center; flex-wrap:wrap;
+  }
+  .controls button{ min-width: 110px; box-shadow: 0 4px 10px rgba(0,0,0,0.3); }
+
+  /* ---------- Win overlay ---------- */
+  #winOverlay{
+    position: fixed; inset:0; background: rgba(0,0,0,0.6);
+    display:none; align-items:center; justify-content:center; z-index: 50;
+    padding: 20px;
+  }
+  #winOverlay .card{ text-align:center; max-width: 420px; }
+  #winOverlay h2{ font-size: 26px; margin: 4px 0 8px; color: var(--good); }
+  #winOverlay p{ font-size:17px; color: var(--muted); margin: 4px 0 16px; }
+  .stars{ font-size: 34px; margin: 8px 0 14px; }
+</style>
+
+<script src="../api-config.js"></script>
+<script src="../monorom-core.js"></script>
+<script src="../monorom-language.js"></script>
+</head>
+<body>
+<div id="app">
+
+  <!-- START SCREEN -->
+  <div id="startScreen">
+    <div class="card">
+      <div class="level-badge" id="startLevelBadge">Ball Sort Puzzle</div>
+      <p style="color:var(--muted); font-size:16px; line-height:1.5;">
+        Tap a tube to pick up its top ball.<br>
+        Tap another tube to place it there.<br>
+        Sort every color into its own tube. Take your time — there's no clock and no losing.
+      </p>
+      <button class="big" id="startBtn">Start Game</button>
+
+      <details>
+        <summary>Select Level</summary>
+        <div class="caregiver-box">
+          <label for="startLevelSelect" style="display:block;">Jump to a specific level</label>
+          <select id="startLevelSelect"></select>
+
+          <label for="volumeSlider" style="display:block; margin-top:12px;">Music Volume</label>
+          <div style="display:flex; align-items:center; gap:8px;">
+            <button type="button" class="secondary" id="volDownBtn" style="padding:6px 12px; min-height:36px; font-size:16px;">-</button>
+            <input type="range" id="volumeSlider" min="0" max="1" step="0.05" value="0.5" style="flex:1; cursor:pointer;">
+            <button type="button" class="secondary" id="volUpBtn" style="padding:6px 12px; min-height:36px; font-size:16px;">+</button>
+          </div>
+        </div>
+      </details>
+    </div>
+  </div>
+
+  <!-- LOADING SCREEN -->
+  <div id="loadingScreen">
+    <div class="bouncing-balls">
+      <span></span><span></span><span></span><span></span>
+    </div>
+    <p id="loadingText">Setting up the tubes…</p>
+  </div>
+
+  <!-- GAME SCREEN -->
+  <div id="gameScreen" style="display:none;">
+    <div class="topbar">
+      <button id="menuBtn" title="Back to menu">⟵</button>
+      <div class="level-pill" id="levelPill">Level 1</div>
+      <div style="display:flex; align-items:center; gap:6px; background: rgba(0,0,0,0.3); padding: 4px 8px; border-radius:12px; backdrop-filter: blur(4px);">
+        <button id="gameVolDownBtn" style="padding:4px 8px; min-height:auto; font-size:16px; background:transparent;">-</button>
+        <button id="muteBtnGame" title="Mute/Unmute music" style="background:transparent; padding:4px 4px; min-height:auto;">🔊</button>
+        <button id="gameVolUpBtn" style="padding:4px 8px; min-height:auto; font-size:16px; background:transparent;">+</button>
+      </div>
+      <button id="restartBtn" title="Restart this level">⟳</button>
+    </div>
+    <div class="msg-banner" id="msgBanner">&nbsp;</div>
+    <div id="tubesWrap"></div>
+    <div class="controls">
+      <button class="secondary" id="undoBtn">↩ Undo</button>
+      <button class="secondary" id="hintBtn">💡 Hint</button>
+    </div>
+  </div>
+
+  <!-- WIN OVERLAY -->
+  <div id="winOverlay">
+    <div class="card">
+      <div class="stars" id="winStars">⭐⭐⭐</div>
+      <h2>Well done!</h2>
+      <p id="winMsg">You sorted all the colors.</p>
+      <button class="big" id="nextLevelBtn">Next Level</button>
+      <div style="height:10px;"></div>
+      <button class="secondary big" id="replayLevelBtn">Play This Level Again</button>
+    </div>
+  </div>
+
+</div>
+
+<script>
+(function(){
+  "use strict";
+
+  const MAX_LEVEL = 50;
+  const SAVE_KEY = "ballsort_save_v1";
+
+  /* ===================== COLORS ===================== */
+  const COLORS = [
+    "#e05555", // red
+    "#3f7fd1", // blue
+    "#4caf6b", // green
+    "#f2c744", // yellow
+    "#e08a3c", // orange
+    "#9b59b6", // purple
+    "#e878a8", // pink
+    "#4dd0d6", // cyan
+    "#1f9e8c", // teal
+    "#5b6fd8", // indigo
+    "#9ccc3f", // lime
+    "#d1a634", // gold
+  ];
+
+  const LOADING_MESSAGES = [
+    "Setting up the tubes…",
+    "Lining up the colors…",
+    "Getting everything ready…",
+    "Almost there…"
+  ];
+
+  /* ===================== LEVEL CONFIG ===================== */
+  function getLevelConfig(level){
+    const colors = Math.max(3, Math.min(COLORS.length, 3 + Math.floor((level - 1) / 5)));
+    const emptyTubes = level <= 20 ? 3 : 2; 
+    const capacity = 4;
+    const baseShuffle = 20 + Math.round(level * 6); 
+    return { colors, emptyTubes, capacity, baseShuffle };
+  }
+
+  /* ===================== ADAPTIVE DIFFICULTY ENGINE ===================== */
+  const Adaptive = {
+    skillScore: 0.5,
+    history: [],
+
+    getMultiplier(){
+      return 0.75 + 0.5 * this.skillScore; // 0.75x .. 1.25x
+    },
+    reset(){
+      this.skillScore = 0.5;
+      this.history = [];
+    },
+    recordResult({level, timeSec, moves, undos, optimalMoves}){
+      const timeScore = clamp01(1 - (timeSec / (20 + level * 6)));
+      const moveScore = clamp01(1 - Math.max(0, moves - optimalMoves) / (optimalMoves * 1.5 + 4));
+      const undoScore = clamp01(1 - undos / 6);
+      const performanceScore = clamp01(0.4*timeScore + 0.4*moveScore + 0.2*undoScore);
+      this.skillScore = clamp01(this.skillScore * 0.65 + performanceScore * 0.35);
+      this.history.push({level, timeSec, moves, undos, performanceScore, skillAfter: this.skillScore});
+    }
+  };
+  function clamp01(x){ return Math.max(0, Math.min(1, x)); }
+
+  /* ===================== SAVE DATA ===================== */
+  const SaveData = {
+    async save(obj){
+      try{
+        if(window.storage){ await window.storage.set(SAVE_KEY, JSON.stringify(obj)); return true; }
+      }catch(e){ /* fall through */ }
+      try{ localStorage.setItem(SAVE_KEY, JSON.stringify(obj)); return true; }catch(e){ /* fall through */ }
+      return false;
+    },
+    async load(){
+      try{
+        if(window.storage){
+          const r = await window.storage.get(SAVE_KEY);
+          if(r && r.value) return JSON.parse(r.value);
+        }
+      }catch(e){ /* not found or unavailable */ }
+      try{
+        const v = localStorage.getItem(SAVE_KEY);
+        if(v) return JSON.parse(v);
+      }catch(e){ /* unavailable */ }
+      return null;
+    },
+    async clear(){
+      try{ if(window.storage) await window.storage.delete(SAVE_KEY); }catch(e){}
+      try{ localStorage.removeItem(SAVE_KEY); }catch(e){}
+    }
+  };
+
+  async function persistProgress(){
+    await SaveData.save({
+      highestLevel: state.highestLevelReached,
+      skillScore: Adaptive.skillScore,
+      muted: Sound.muted,
+      volume: Sound.volume
+    });
+  }
+
+  /* ===================== BACKGROUND MUSIC ===================== */
+  const Sound = {
+    ctx: null,
+    masterGain: null,
+    muted: false,
+    volume: 0.5,
+    timer: null,
+    notes: [261.63, 293.66, 329.63, 392.00, 440.00],
+
+    ensureCtx(){
+      if(!this.ctx){
+        this.ctx = new (window.AudioContext || window.webkitAudioContext)();
+        this.masterGain = this.ctx.createGain();
+        this.updateGain();
+        this.masterGain.connect(this.ctx.destination);
+      }
+      if(this.ctx.state === 'suspended') this.ctx.resume();
+    },
+    updateGain(){
+      if(this.masterGain){
+        this.masterGain.gain.value = this.muted ? 0 : (this.volume * 0.12);
+      }
+    },
+    setVolume(v){
+      this.volume = Math.max(0, Math.min(1, v));
+      this.updateGain();
+    },
+    start(){
+      this.ensureCtx();
+      if(this.timer) return;
+      const playNote = () => {
+        if(!this.ctx) return;
+        const freq = this.notes[Math.floor(Math.random()*this.notes.length)];
+        const osc = this.ctx.createOscillator();
+        const g = this.ctx.createGain();
+        osc.type = 'sine';
+        osc.frequency.value = freq;
+        g.gain.value = 0;
+        osc.connect(g);
+        g.connect(this.masterGain);
+        const now = this.ctx.currentTime;
+        g.gain.linearRampToValueAtTime(1, now + 1.2);
+        g.gain.linearRampToValueAtTime(0, now + 3.2);
+        osc.start(now);
+        osc.stop(now + 3.3);
+      };
+      playNote();
+      this.timer = setInterval(playNote, 2200);
+    },
+    setMuted(m){
+      this.muted = m;
+      this.updateGain();
+    },
+    stop(){
+      if(this.timer){ clearInterval(this.timer); this.timer = null; }
+    }
+  };
+
+  /* ===================== GAME STATE ===================== */
+  let state = {
+    level: 1,
+    tubes: [],
+    capacity: 4,
+    selected: null,
+    moveHistory: [],
+    undosUsed: 0,
+    moves: 0,
+    startTime: null,
+    hintTimeout: null,
+    highestLevelReached: 1,
+    animating: false,
+  };
+
+  /* ===================== PUZZLE GENERATION ===================== */
+  function canMove(tubes, from, to, capacity){
+    if(from === to) return false;
+    const src = tubes[from], dst = tubes[to];
+    if(src.length === 0) return false;
+    if(dst.length >= capacity) return false;
+    if(dst.length === 0) return true;
+    return dst[dst.length-1] === src[src.length-1];
+  }
+
+  function isSolved(tubes, capacity){
+    return tubes.every(t => t.length === 0 || (t.length === capacity && t.every(b => b === t[0])));
+  }
+
+  function generateLevel(levelNum){
+    const cfg = getLevelConfig(levelNum);
+    const capacity = cfg.capacity;
+    const numTubes = cfg.colors + cfg.emptyTubes;
+    const shuffleMoves = Math.round(cfg.baseShuffle * Adaptive.getMultiplier());
+
+    let bestTubes = null;
+    let maxPerformed = -1;
+
+    // Try multiple generation passes to find the deepest possible scramble
+    for (let attempt = 0; attempt < 8; attempt++) {
+      let tubes = [];
+      for(let c = 0; c < cfg.colors; c++){
+        const tube = [];
+        for(let i = 0; i < capacity; i++) tube.push(c);
+        tubes.push(tube);
+      }
+      for(let e = 0; e < cfg.emptyTubes; e++) tubes.push([]);
+
+      let lastMove = null;
+      let loops = 0;
+      let performed = 0;
+
+      // Scramble using true reverse-move logic to ensure colors actually mix
+      while(performed < shuffleMoves && loops < shuffleMoves * 50){
+        loops++;
+        const from = Math.floor(Math.random() * numTubes);
+        const to = Math.floor(Math.random() * numTubes);
+
+        if(from === to) continue;
+        if(tubes[from].length === 0) continue;
+        if(tubes[to].length >= capacity) continue;
+
+        const movingBall = tubes[from][tubes[from].length - 1];
+        const srcLenAfter = tubes[from].length - 1;
+
+        // For a reverse move to be valid, the forward move (putting it back) must be legal.
+        // This means the source tube must either become empty, or its new top ball must match.
+        let validReverse = false;
+        if (srcLenAfter === 0) {
+            validReverse = true;
+        } else if (tubes[from][srcLenAfter - 1] === movingBall) {
+            validReverse = true;
+        }
+
+        if (!validReverse) continue;
+
+        // Prevent immediately undoing the move we just made
+        if(lastMove && lastMove.from === to && lastMove.to === from) continue;
+
+        tubes[to].push(tubes[from].pop());
+        lastMove = { from, to };
+        performed++;
+      }
+
+      // Track the attempt that successfully performed the most shuffle moves
+      if (performed > maxPerformed) {
+        maxPerformed = performed;
+        bestTubes = JSON.parse(JSON.stringify(tubes));
+      }
+
+      if (performed >= shuffleMoves) break; // Reached target complexity
+    }
+
+    let finalTubes = bestTubes;
+
+    // Safety net: if we somehow ended up back at a solved board, nudge it.
+    if(isSolved(finalTubes, capacity)){
+      for(let i = 0; i < numTubes && isSolved(finalTubes, capacity); i++){
+        const from = i % numTubes;
+        const to = (i + 1) % numTubes;
+        if(canMove(finalTubes, from, to, capacity)){
+          finalTubes[to].push(finalTubes[from].pop());
+        }
+      }
+    }
+
+    return { tubes: finalTubes, capacity };
+  }
+
+  /* ===================== RENDERING ===================== */
+  const tubesWrap = document.getElementById('tubesWrap');
+  const levelPill = document.getElementById('levelPill');
+  const msgBanner = document.getElementById('msgBanner');
+
+  function renderTubes(){
+    tubesWrap.innerHTML = '';
+    state.tubes.forEach((tube, idx) => {
+      const el = document.createElement('div');
+      el.className = 'tube';
+      if(state.selected === idx) el.classList.add('selected');
+      el.dataset.idx = idx;
+      tube.forEach(colorIdx => {
+        const ball = document.createElement('div');
+        ball.className = 'ball';
+        ball.style.background = COLORS[colorIdx];
+        el.appendChild(ball);
+      });
+      el.addEventListener('click', () => onTubeTap(idx));
+      tubesWrap.appendChild(el);
+    });
+  }
+
+  function setMsg(text){
+    msgBanner.textContent = text || '\u00A0';
+  }
+
+  /* ===================== SMOOTH BALL ANIMATION ===================== */
+  function animateBallMove(from, to, colorIdx){
+    return new Promise((resolve) => {
+      const tubeEls = tubesWrap.children;
+      const srcTubeEl = tubeEls[from];
+      const dstTubeEl = tubeEls[to];
+      if(!srcTubeEl || !dstTubeEl){ resolve(); return; }
+
+      const topBall = srcTubeEl.lastElementChild;
+      if(!topBall){ resolve(); return; }
+
+      const srcRect = topBall.getBoundingClientRect();
+      topBall.style.opacity = '0';
+
+      const ghost = document.createElement('div');
+      ghost.className = 'ball';
+      ghost.style.visibility = 'hidden';
+      dstTubeEl.appendChild(ghost);
+      const dstRect = ghost.getBoundingClientRect();
+      dstTubeEl.removeChild(ghost);
+
+      const flying = document.createElement('div');
+      flying.className = 'ball';
+      flying.style.position = 'fixed';
+      flying.style.left = srcRect.left + 'px';
+      flying.style.top = srcRect.top + 'px';
+      flying.style.width = srcRect.width + 'px';
+      flying.style.height = srcRect.height + 'px';
+      flying.style.background = COLORS[colorIdx];
+      flying.style.zIndex = '999';
+      flying.style.pointerEvents = 'none';
+      document.body.appendChild(flying);
+
+      const dx = dstRect.left - srcRect.left;
+      const dy = dstRect.top - srcRect.top;
+      const lift = Math.min(70, Math.max(24, Math.abs(dy) * 0.45 + 18));
+
+      let done = false;
+      const finish = () => {
+        if(done) return;
+        done = true;
+        flying.remove();
+        resolve();
+      };
+
+      const anim = flying.animate([
+        { transform: 'translate(0px, 0px) scale(1)' },
+        { transform: `translate(${dx * 0.5}px, ${dy * 0.5 - lift}px) scale(1.12)` },
+        { transform: `translate(${dx}px, ${dy}px) scale(1)` }
+      ], { duration: 300, easing: 'cubic-bezier(.35,.05,.25,1)' });
+
+      if(anim.finished && anim.finished.then){
+        anim.finished.then(finish).catch(finish);
+      } else {
+        anim.onfinish = finish;
+      }
+      setTimeout(finish, 480);
+    });
+  }
+
+  /* ===================== INTERACTION ===================== */
+  function onTubeTap(idx){
+    if(state.animating) return;
+    clearHint();
+    if(state.selected === null){
+      if(state.tubes[idx].length === 0){
+        setMsg("That tube is empty — pick one with a ball first.");
+        return;
+      }
+      state.selected = idx;
+      setMsg("Now tap the tube you want to place it in.");
+      renderTubes();
+      return;
+    }
+    if(state.selected === idx){
+      state.selected = null;
+      setMsg("");
+      renderTubes();
+      return;
+    }
+    const from = state.selected;
+    const to = idx;
+    if(!canMove(state.tubes, from, to, state.capacity)){
+      setMsg("That ball can't go there — try a matching color or an empty tube.");
+      state.selected = null;
+      renderTubes();
+      return;
+    }
+    state.selected = null;
+    performMove(from, to, true);
+  }
+
+  async function performMove(from, to, recordHistory){
+    state.animating = true;
+    tubesWrap.style.pointerEvents = 'none';
+    const colorIdx = state.tubes[from][state.tubes[from].length - 1];
+    await animateBallMove(from, to, colorIdx);
+    state.tubes[from].pop();
+    state.tubes[to].push(colorIdx);
+    if(recordHistory) state.moveHistory.push({ from, to });
+    state.moves++;
+    renderTubes();
+    tubesWrap.style.pointerEvents = '';
+    state.animating = false;
+    if(isSolved(state.tubes, state.capacity)){
+      handleWin();
+    }
+  }
+
+  async function undoMove(){
+    if(state.animating) return;
+    const last = state.moveHistory.pop();
+    if(!last){
+      setMsg("Nothing to undo yet.");
+      return;
+    }
+    clearHint();
+    state.undosUsed++;
+    state.animating = true;
+    tubesWrap.style.pointerEvents = 'none';
+    const colorIdx = state.tubes[last.to][state.tubes[last.to].length - 1];
+    await animateBallMove(last.to, last.from, colorIdx);
+    state.tubes[last.to].pop();
+    state.tubes[last.from].push(colorIdx);
+    renderTubes();
+    tubesWrap.style.pointerEvents = '';
+    state.animating = false;
+    setMsg("Move undone. Take your time.");
+  }
+
+  function getHintMove(){
+    const tubes = state.tubes;
+    const capacity = state.capacity;
+    let best = null, bestScore = -Infinity;
+    const lastMove = state.moveHistory[state.moveHistory.length - 1];
+
+    for(let from = 0; from < tubes.length; from++){
+      if(tubes[from].length === 0) continue;
+      const color = tubes[from][tubes[from].length - 1];
+      const srcHomogeneous = tubes[from].every(b => b === color);
+      if(srcHomogeneous && tubes[from].length === capacity) continue;
+
+      for(let to = 0; to < tubes.length; to++){
+        if(!canMove(tubes, from, to, capacity)) continue;
+        let score = 0;
+        const destEmpty = tubes[to].length === 0;
+        const destTopSame = !destEmpty && tubes[to][tubes[to].length - 1] === color;
+        const wouldComplete = destTopSame && (tubes[to].length + 1 === capacity) && tubes[to].every(b => b === color);
+
+        if(wouldComplete) score += 20;
+        if(destTopSame) score += 8;
+        if(destEmpty){
+          score += srcHomogeneous ? -15 : 4;
+        }
+        if(lastMove && lastMove.from === to && lastMove.to === from) score -= 30;
+
+        if(score > bestScore){ bestScore = score; best = { from, to }; }
+      }
+    }
+    return best;
+  }
+
+  function showHint(){
+    if(state.animating) return;
+    const move = getHintMove();
+    if(!move){
+      setMsg("No helpful move right now — try Undo.");
+      return;
+    }
+    clearHint();
+    const tubeEls = tubesWrap.children;
+    if(tubeEls[move.from]) tubeEls[move.from].classList.add('hint-from');
+    if(tubeEls[move.to]) tubeEls[move.to].classList.add('hint-to');
+    setMsg("Try the glowing tubes.");
+    state.hintTimeout = setTimeout(clearHint, 3000);
+  }
+
+  function clearHint(){
+    if(state.hintTimeout){ clearTimeout(state.hintTimeout); state.hintTimeout = null; }
+    Array.from(tubesWrap.children).forEach(el => {
+      el.classList.remove('hint-from');
+      el.classList.remove('hint-to');
+    });
+  }
+
+  /* ===================== WIN HANDLING ===================== */
+  function handleWin(){
+    const timeSec = (Date.now() - state.startTime) / 1000;
+    const cfg = getLevelConfig(state.level);
+    const optimalMoves = Math.max(4, cfg.colors * (state.capacity - 1));
+    Adaptive.recordResult({ level: state.level, timeSec, moves: state.moves, undos: state.undosUsed, optimalMoves });
+    state.highestLevelReached = Math.max(state.highestLevelReached, Math.min(state.level + 1, MAX_LEVEL));
+    persistProgress();
+
+    const perf = Adaptive.history[Adaptive.history.length - 1].performanceScore;
+    const starCount = perf > 0.75 ? 3 : (perf > 0.45 ? 2 : 1);
+    document.getElementById('winStars').textContent = '⭐'.repeat(starCount) + '☆'.repeat(3 - starCount);
+
+    const isLast = state.level >= MAX_LEVEL;
+    document.getElementById('winMsg').textContent = isLast
+      ? "You've completed every level. Wonderful work!"
+      : "You sorted all the colors.";
+    document.getElementById('nextLevelBtn').style.display = isLast ? 'none' : 'block';
+    document.getElementById('winOverlay').style.display = 'flex';
+  }
+
+  /* ===================== LEVEL / SCREEN FLOW ===================== */
+  function startLevel(levelNum){
+    state.level = Math.max(1, Math.min(MAX_LEVEL, levelNum));
+    const gen = generateLevel(state.level);
+    state.tubes = gen.tubes;
+    state.capacity = gen.capacity;
+    state.selected = null;
+    state.moveHistory = [];
+    state.undosUsed = 0;
+    state.moves = 0;
+    state.startTime = Date.now();
+    levelPill.textContent = `Level ${state.level}`;
+    setMsg("");
+    document.getElementById('winOverlay').style.display = 'none';
+    renderTubes();
+  }
+
+  function wait(ms){ return new Promise(r => setTimeout(r, ms)); }
+
+  function showLoading(){
+    document.getElementById('startScreen').style.display = 'none';
+    document.getElementById('gameScreen').style.display = 'none';
+    const loading = document.getElementById('loadingScreen');
+    document.getElementById('loadingText').textContent =
+      LOADING_MESSAGES[Math.floor(Math.random() * LOADING_MESSAGES.length)];
+    loading.style.display = 'flex';
+  }
+
+  function showGameScreen(){
+    document.getElementById('loadingScreen').style.display = 'none';
+    document.getElementById('gameScreen').style.display = 'flex';
+  }
+
+  function showStartScreen(){
+    document.getElementById('gameScreen').style.display = 'none';
+    document.getElementById('loadingScreen').style.display = 'none';
+    document.getElementById('startScreen').style.display = 'flex';
+    const sel = document.getElementById('startLevelSelect');
+    if(sel) sel.value = String(state.highestLevelReached);
+  }
+
+  /* ===================== INIT / WIRING ===================== */
+  function populateLevelSelect(){
+    const sel = document.getElementById('startLevelSelect');
+    sel.innerHTML = '';
+    for(let i = 1; i <= MAX_LEVEL; i++){
+      const opt = document.createElement('option');
+      opt.value = String(i);
+      opt.textContent = `Level ${i}`;
+      sel.appendChild(opt);
+    }
+    sel.value = String(state.highestLevelReached);
+  }
+
+  function updateMuteIcon(){
+    const icon = Sound.muted ? '🔇' : '🔊';
+    document.getElementById('muteBtnGame').textContent = icon;
+  }
+
+  async function init(){
+    const saved = await SaveData.load();
+    if(saved){
+      state.highestLevelReached = saved.highestLevel || 1;
+      Adaptive.skillScore = typeof saved.skillScore === 'number' ? saved.skillScore : 0.5;
+      Sound.muted = !!saved.muted;
+      Sound.volume = typeof saved.volume === 'number' ? saved.volume : 0.5;
+    }
+
+    populateLevelSelect();
+    document.getElementById('volumeSlider').value = String(Sound.volume);
+    updateMuteIcon();
+
+    document.getElementById('startBtn').addEventListener('click', async () => {
+      Sound.ensureCtx();
+      Sound.start();
+      const chosen = parseInt(document.getElementById('startLevelSelect').value, 10) || state.highestLevelReached;
+      showLoading();
+      await wait(1300);
+      startLevel(chosen);
+      showGameScreen();
+    });
+
+    document.getElementById('menuBtn').addEventListener('click', () => {
+      clearHint();
+      showStartScreen();
+    });
+
+    document.getElementById('restartBtn').addEventListener('click', () => {
+      startLevel(state.level);
+    });
+
+    document.getElementById('undoBtn').addEventListener('click', undoMove);
+    document.getElementById('hintBtn').addEventListener('click', showHint);
+
+    document.getElementById('nextLevelBtn').addEventListener('click', () => {
+      startLevel(state.level + 1);
+    });
+    document.getElementById('replayLevelBtn').addEventListener('click', () => {
+      startLevel(state.level);
+    });
+
+    const volumeSlider = document.getElementById('volumeSlider');
+    volumeSlider.addEventListener('input', () => {
+      Sound.setVolume(parseFloat(volumeSlider.value));
+      persistProgress();
+    });
+    document.getElementById('volDownBtn').addEventListener('click', () => {
+      Sound.setVolume(Sound.volume - 0.1);
+      volumeSlider.value = String(Sound.volume);
+      persistProgress();
+    });
+    document.getElementById('volUpBtn').addEventListener('click', () => {
+      Sound.setVolume(Sound.volume + 0.1);
+      volumeSlider.value = String(Sound.volume);
+      persistProgress();
+    });
+
+    document.getElementById('gameVolDownBtn').addEventListener('click', () => {
+      Sound.setVolume(Sound.volume - 0.1);
+      volumeSlider.value = String(Sound.volume);
+      persistProgress();
+    });
+    document.getElementById('gameVolUpBtn').addEventListener('click', () => {
+      Sound.setVolume(Sound.volume + 0.1);
+      volumeSlider.value = String(Sound.volume);
+      persistProgress();
+    });
+    document.getElementById('muteBtnGame').addEventListener('click', () => {
+      Sound.setMuted(!Sound.muted);
+      updateMuteIcon();
+      persistProgress();
+    });
+  }
+
+  document.addEventListener('DOMContentLoaded', init);
+})();
+</script>
+</body>
+</html>

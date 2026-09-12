@@ -1,0 +1,1 @@
+import {Router} from 'express'; import {push,pull} from '../controllers/syncController.js'; import {requireAuth} from '../middleware/auth.js'; const r=Router(); r.use(requireAuth); r.post('/push',push); r.get('/pull',pull); export default r;

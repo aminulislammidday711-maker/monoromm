@@ -1,0 +1,720 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=2.0">
+<title>Family & Doctor — Monorom Memory Companion</title>
+<style>
+  :root {
+    --forest: #2D5F4F;
+    --forest-dark: #1F4438;
+    --gold: #C89B3C;
+    --gold-light: #E8C97A;
+    --cream: #FBF6EC;
+    --card: #FFFFFF;
+    --ink: #23302B;
+    --ink-soft: #4B5A54;
+    --river: #4C7C93;
+    --terracotta: #B5533C;
+    --line: #E1D8C2;
+    --focus: #1F4438;
+    --radius: 18px;
+  }
+
+  * { box-sizing: border-box; }
+
+  html, body {
+    margin: 0; padding: 0;
+    background: var(--cream);
+    color: var(--ink);
+    font-family: "Segoe UI", "Noto Sans", "Noto Sans Devanagari", "Noto Sans Bengali", Verdana, Arial, sans-serif;
+    font-size: 20px;
+    line-height: 1.5;
+  }
+
+  body {
+    background-image: url('background.png');
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    background-attachment: fixed;
+  }
+
+  button, input, select { font-family: inherit; }
+
+  a:focus-visible, button:focus-visible, select:focus-visible, input:focus-visible, [tabindex]:focus-visible {
+    outline: 4px solid var(--focus);
+    outline-offset: 3px;
+  }
+
+  header {
+    background-image: url('banner.png');
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    color: #fff;
+    padding: 22px 24px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 14px;
+    border-bottom: 6px solid var(--gold);
+    position: sticky;
+    top: 0;
+    z-index: 20;
+  }
+
+  .brand { display: flex; align-items: center; gap: 14px; }
+
+  .back-btn-round {
+    display:flex; align-items:center; justify-content:center;
+    width:48px; height:48px; border-radius:50%;
+    background: rgba(255,255,255,0.12);
+    color:#fff; text-decoration:none; font-size:1.5rem;
+    border: 2px solid rgba(255,255,255,0.3);
+    flex-shrink:0;
+  }
+  .back-btn-round:active { background: rgba(255,255,255,0.25); }
+
+  .brand-mark {
+    width: 54px; height: 54px; border-radius: 14px;
+    background: var(--gold);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 28px; flex-shrink: 0;
+  }
+
+  .brand h1 { margin: 0; font-size: 1.5rem; letter-spacing: 0.3px; }
+  .brand p { margin: 2px 0 0; font-size: 1rem; color: var(--gold-light); }
+
+  main { max-width: 980px; margin: 0 auto; padding: 24px 18px 80px; }
+
+  .intro-card {
+    background: var(--card);
+    border: 1px solid var(--line);
+    border-left: 10px solid var(--river);
+    border-radius: var(--radius);
+    padding: 20px 22px;
+    margin-bottom: 22px;
+  }
+  .intro-card h2 { margin: 0 0 4px; font-size: 1.5rem; color: var(--forest-dark); }
+  .intro-card p { margin: 0; color: var(--ink-soft); font-size: 1.05rem; }
+
+  .notice-box {
+    background: #FFF7E6; border: 2px solid var(--gold);
+    border-radius: 16px; padding: 16px 18px; margin-bottom: 22px;
+    font-size: 1rem; color: var(--ink-soft); display: flex; gap: 12px; align-items: flex-start;
+  }
+  .notice-box .emo { font-size: 1.4rem; flex-shrink: 0; }
+
+  .screen { display: none; }
+  .screen.active { display: block; animation: screenIn 220ms ease both; }
+  @keyframes screenIn { from { opacity: 0; transform: translateY(10px);} to { opacity: 1; transform: translateY(0);} }
+  @media (prefers-reduced-motion: reduce) { .screen.active { animation: none; } }
+
+  .home-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 18px; }
+  .home-card {
+    background: var(--card); border: 2px solid var(--line); border-radius: 20px;
+    padding: 26px 22px; display: flex; align-items: center; gap: 18px;
+    cursor: pointer; text-align: left; width: 100%;
+    transition: transform 120ms ease, box-shadow 120ms ease, border-color 120ms ease;
+  }
+  .home-card:hover, .home-card:focus-visible { transform: translateY(-3px); border-color: var(--forest); box-shadow: 0 8px 20px rgba(31,68,56,0.12); }
+  .home-card:active { transform: translateY(0px) scale(0.99); }
+  .home-icon { width: 64px; height: 64px; border-radius: 16px; display: flex; align-items: center; justify-content: center; font-size: 32px; color: #fff; flex-shrink: 0; }
+  .icon-family { background: var(--river); }
+  .icon-doctor { background: var(--terracotta); }
+  .home-card h3 { margin: 0 0 4px; font-size: 1.35rem; color: var(--forest-dark); }
+  .home-card p { margin: 0; font-size: 1rem; color: var(--ink-soft); }
+  .home-badge {
+    margin-left: auto; background: var(--forest); color: #fff; border-radius: 999px;
+    font-size: 0.9rem; font-weight: 700; padding: 4px 12px; flex-shrink: 0;
+  }
+
+  section.card { background: var(--card); border: 1px solid var(--line); border-radius: var(--radius); padding: 22px; margin-bottom: 24px; box-shadow: 0 2px 0 var(--line); }
+
+  .back-row { display: flex; align-items: center; gap: 14px; margin-bottom: 18px; }
+  .back-btn { background: var(--card); border: 2px solid var(--forest); color: var(--forest-dark); border-radius: 12px; padding: 10px 18px; font-size: 1.05rem; font-weight: 700; cursor: pointer; min-height: 48px; }
+
+  .section-head { display: flex; align-items: center; gap: 14px; margin-bottom: 16px; }
+  .section-icon { width: 52px; height: 52px; border-radius: 14px; display: flex; align-items: center; justify-content: center; font-size: 26px; flex-shrink: 0; color: #fff; }
+  .section-head h2 { margin: 0; font-size: 1.4rem; color: var(--forest-dark); }
+  .section-head .sub { margin: 2px 0 0; font-size: 1rem; color: var(--ink-soft); }
+
+  .btn { display: inline-flex; align-items: center; justify-content: center; gap: 8px; border: none; border-radius: 14px; padding: 16px 22px; font-size: 1.1rem; font-weight: 600; cursor: pointer; min-height: 56px; transition: transform 0.08s ease; text-decoration: none; }
+  .btn:active { transform: scale(0.97); }
+  .btn-primary { background: var(--forest); color: #fff; }
+  .btn-primary:hover { background: var(--forest-dark); }
+  .btn-gold { background: var(--gold); color: var(--forest-dark); }
+  .btn-outline { background: #fff; color: var(--forest-dark); border: 2px solid var(--forest); }
+  .btn-danger { background: var(--terracotta); color: #fff; }
+  .btn-river { background: var(--river); color: #fff; }
+  .btn-block { width: 100%; }
+  .btn-sm { padding: 10px 16px; font-size: 0.95rem; min-height: 44px; }
+
+  .form-row { display: flex; gap: 12px; flex-wrap: wrap; align-items: center; margin-bottom: 14px; }
+  .form-row label { font-size: 1.05rem; color: var(--ink-soft); min-width: 120px; }
+  input[type="text"], input[type="tel"], input[type="email"], select.field {
+    font-size: 1.1rem; padding: 12px 14px; border-radius: 12px;
+    border: 2px solid var(--line); background: #fffdf9; color: var(--ink);
+    min-height: 52px; flex: 1; min-width: 160px;
+  }
+  .field-error { border-color: var(--terracotta) !important; }
+  .error-text { color: var(--terracotta); font-size: 0.95rem; margin: -8px 0 14px; display: none; }
+  .error-text.show { display: block; }
+
+  .item-list { display: flex; flex-direction: column; gap: 14px; margin-top: 6px; }
+  .contact-card {
+    background: #FFFBF3; border: 2px solid var(--line); border-radius: 16px;
+    padding: 16px 18px; display: flex; flex-direction: column; gap: 12px;
+  }
+  .contact-top { display: flex; justify-content: space-between; align-items: flex-start; gap: 12px; flex-wrap: wrap; }
+  .contact-name { font-size: 1.2rem; font-weight: 700; color: var(--forest-dark); }
+  .contact-role { font-size: 1rem; color: var(--ink-soft); }
+  .contact-detail { font-size: 1rem; color: var(--ink-soft); }
+  .contact-actions { display: flex; gap: 10px; flex-wrap: wrap; }
+  .primary-tag { background: var(--gold); color: var(--forest-dark); padding: 4px 12px; border-radius: 999px; font-size: 0.85rem; font-weight: 700; }
+
+  .empty { text-align: center; color: var(--ink-soft); padding: 18px; font-size: 1.05rem; }
+
+  footer { text-align: center; color: var(--ink-soft); font-size: 0.95rem; padding: 20px; }
+
+  .modal-overlay { position: fixed; inset: 0; background: rgba(35,48,43,0.55); display: none; align-items: center; justify-content: center; z-index: 100; padding: 20px; }
+  .modal-overlay.show { display: flex; }
+  .modal-box { background: #fff; border-radius: 20px; padding: 28px 26px; max-width: 460px; width: 100%; text-align: center; box-shadow: 0 20px 50px rgba(0,0,0,0.25); animation: modalIn 160ms ease both; }
+  @keyframes modalIn { from { opacity: 0; transform: scale(0.94); } to { opacity: 1; transform: scale(1); } }
+  .modal-box p { font-size: 1.15rem; color: var(--ink); margin: 0 0 20px; white-space: pre-line; text-align: left; }
+  .modal-actions { display: flex; gap: 14px; justify-content: center; }
+
+  @media (max-width: 560px) {
+    body { font-size: 18px; }
+    .brand h1 { font-size: 1.2rem; }
+    .form-row label { min-width: 100%; }
+  }
+</style>
+
+<script src="api-config.js"></script>
+<script src="monorom-core.js"></script>
+<script src="monorom-language.js"></script>
+</head>
+<body>
+
+<header>
+  <div class="brand">
+    <a class="back-btn-round" href="index.html" aria-label="Back to home">←</a>
+    
+    <div>
+      <h1 data-i18n="appTitle">Family & Doctor</h1>
+      <p data-i18n="appSubtitle">Monorom Memory Companion</p>
+    </div>
+  </div>
+</header>
+
+<main>
+
+  <div class="intro-card">
+    <h2 data-i18n="introTitle">Caregiver Portal</h2>
+    <p data-i18n="introSub">Save contact details, and share the day's activity report with a tap.</p>
+  </div>
+
+  <div class="notice-box">
+    <span class="emo">ℹ️</span>
+    <span data-i18n="noticeText">This page prepares messages for you — tapping "Send Report" opens your phone's own email or SMS app with the report already filled in. It does not send anything automatically in the background; you (or the family member) still tap Send.</span>
+  </div>
+
+  <!-- ===================== HOME SCREEN ===================== -->
+  <div class="screen active" id="screen-home">
+    <div class="home-grid">
+      <button class="home-card" onclick="goTo('family')">
+        <div class="home-icon icon-family">👪</div>
+        <div>
+          <h3 data-i18n="familyTitle">Family Members</h3>
+          <p data-i18n="familySub">Numbers and emails of the people who care for you</p>
+        </div>
+        <span class="home-badge" id="familyCount">0</span>
+      </button>
+
+      <button class="home-card" onclick="goTo('doctor')">
+        <div class="home-icon icon-doctor">🩺</div>
+        <div>
+          <h3 data-i18n="doctorTitle">Doctors</h3>
+          <p data-i18n="doctorSub">Your doctors' clinic numbers and emails</p>
+        </div>
+        <span class="home-badge" id="doctorCount">0</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- ===================== FAMILY SCREEN ===================== -->
+  <div class="screen" id="screen-family">
+    <div class="back-row"><button class="back-btn" onclick="goTo('home')" data-i18n="backBtn">← Back</button></div>
+    <section class="card">
+      <div class="section-head">
+        <div class="section-icon icon-family">👪</div>
+        <div>
+          <h2 data-i18n="familyTitle">Family Members</h2>
+          <p class="sub" data-i18n="familyAddSub">Add a family member so they can be reached quickly</p>
+        </div>
+      </div>
+
+      <div class="form-row"><label for="famName" data-i18n="nameLabel">Name</label><input type="text" id="famName" placeholder="e.g. Priya (Daughter)"></div>
+      <div class="form-row"><label for="famRelation" data-i18n="relationLabel">Relation</label><input type="text" id="famRelation" placeholder="e.g. Daughter"></div>
+      <div class="form-row"><label for="famPhone" data-i18n="phoneLabel">Phone</label><input type="tel" id="famPhone" placeholder="e.g. 98765 43210"></div>
+      <div class="error-text" id="famPhoneError" data-i18n="phoneError">Please enter a valid phone number.</div>
+      <div class="form-row"><label for="famEmail" data-i18n="emailLabel">Email (optional)</label><input type="email" id="famEmail" placeholder="e.g. priya@example.com"></div>
+      <div class="error-text" id="famEmailError" data-i18n="emailError">Please enter a valid email address.</div>
+      <div class="form-row">
+        <label style="min-width:auto; display:flex; align-items:center; gap:8px;">
+          <input type="checkbox" id="famPrimary" style="width:24px; height:24px;">
+          <span data-i18n="primaryLabel">Primary contact for emergencies</span>
+        </label>
+      </div>
+      <button class="btn btn-primary" id="addFamBtn" data-i18n="addContactBtn">Add Family Member</button>
+
+      <div class="item-list" id="famList" style="margin-top:22px;"></div>
+      <div class="empty" id="famEmpty" data-i18n="famEmptyText">No family members added yet.</div>
+    </section>
+  </div>
+
+  <!-- ===================== DOCTOR SCREEN ===================== -->
+  <div class="screen" id="screen-doctor">
+    <div class="back-row"><button class="back-btn" onclick="goTo('home')" data-i18n="backBtn">← Back</button></div>
+    <section class="card">
+      <div class="section-head">
+        <div class="section-icon icon-doctor">🩺</div>
+        <div>
+          <h2 data-i18n="doctorTitle">Doctors</h2>
+          <p class="sub" data-i18n="doctorAddSub">Add a doctor so they can be reached quickly</p>
+        </div>
+      </div>
+
+      <div class="form-row"><label for="docName" data-i18n="nameLabel">Name</label><input type="text" id="docName" placeholder="e.g. Dr. Sharma"></div>
+      <div class="form-row"><label for="docSpecialty" data-i18n="specialtyLabel">Specialty / Clinic</label><input type="text" id="docSpecialty" placeholder="e.g. Cardiologist, City Clinic"></div>
+      <div class="form-row"><label for="docPhone" data-i18n="phoneLabel">Phone</label><input type="tel" id="docPhone" placeholder="e.g. 98765 43210"></div>
+      <div class="error-text" id="docPhoneError" data-i18n="phoneError">Please enter a valid phone number.</div>
+      <div class="form-row"><label for="docEmail" data-i18n="emailLabel">Email (optional)</label><input type="email" id="docEmail" placeholder="e.g. clinic@example.com"></div>
+      <div class="error-text" id="docEmailError" data-i18n="emailError">Please enter a valid email address.</div>
+      <button class="btn btn-primary" id="addDocBtn" data-i18n="addDoctorBtn">Add Doctor</button>
+
+      <div class="item-list" id="docList" style="margin-top:22px;"></div>
+      <div class="empty" id="docEmpty" data-i18n="docEmptyText">No doctors added yet.</div>
+    </section>
+  </div>
+
+</main>
+
+<footer data-i18n="footerText">Monorom Memory Companion — made with care for families across the Northeast</footer>
+
+<div class="modal-overlay" id="modalOverlay">
+  <div class="modal-box">
+    <p id="modalMessage">Are you sure?</p>
+    <div class="modal-actions">
+      <button class="btn btn-outline" id="modalCancelBtn" data-i18n="noBtn">No</button>
+      <button class="btn btn-danger" id="modalConfirmBtn" data-i18n="yesBtn">Yes</button>
+    </div>
+  </div>
+</div>
+
+<script>
+/* ===================== TRANSLATIONS ===================== */
+const translations = {
+  en: {
+    appTitle: "Family & Doctor", appSubtitle: "Monorom Memory Companion",
+    introTitle: "Caregiver Portal",
+    introSub: "Save contact details, and share the day's activity report with a tap.",
+    noticeText: "This page prepares messages for you — tapping \"Send Report\" opens your phone's own email or SMS app with the report already filled in. It does not send anything automatically in the background; you (or the family member) still tap Send.",
+    backBtn: "← Back",
+    familyTitle: "Family Members", familySub: "Numbers and emails of the people who care for you",
+    familyAddSub: "Add a family member so they can be reached quickly",
+    doctorTitle: "Doctors", doctorSub: "Your doctors' clinic numbers and emails",
+    doctorAddSub: "Add a doctor so they can be reached quickly",
+    nameLabel: "Name", relationLabel: "Relation", specialtyLabel: "Specialty / Clinic",
+    phoneLabel: "Phone", emailLabel: "Email (optional)",
+    phoneError: "Please enter a valid phone number.",
+    emailError: "Please enter a valid email address.",
+    primaryLabel: "Primary contact for emergencies",
+    addContactBtn: "Add Family Member", addDoctorBtn: "Add Doctor",
+    famEmptyText: "No family members added yet.",
+    docEmptyText: "No doctors added yet.",
+    callBtn: "Call", smsBtn: "Text", emailBtn: "Email", reportBtn: "Send Report",
+    deleteBtn: "Delete", primaryTag: "Primary",
+    deleteConfirmMsg: "Are you sure you want to remove this contact?",
+    yesBtn: "Yes", noBtn: "No",
+    reportSubjectFamily: "Daily activity update",
+    reportSubjectDoctor: "Patient daily report",
+    reportGreetingFamily: "Hello {name}, here is today's update:",
+    reportGreetingDoctor: "Dear Dr. {name}, here is today's patient report:",
+    reportNoData: "No activity has been recorded yet today.",
+    reportMed: "Medicines:", reportActivities: "Activities completed:", reportAppt: "Upcoming appointments:",
+    reportMissed: "Missed doses on record:", reportSignoff: "Sent from Monorom Memory Companion.",
+    footerText: "Monorom Memory Companion — made with care for families across the Northeast"
+  },
+  hi: {
+    appTitle: "परिवार और डॉक्टर", appSubtitle: "मनोरम मेमोरी कंपेनियन",
+    introTitle: "देखभालकर्ता पोर्टल",
+    introSub: "संपर्क विवरण सहेजें, और एक टैप में आज की गतिविधि रिपोर्ट साझा करें।",
+    noticeText: "यह पेज आपके लिए संदेश तैयार करता है — \"रिपोर्ट भेजें\" दबाने पर आपके फोन का ईमेल या एसएमएस ऐप पहले से भरी रिपोर्ट के साथ खुलेगा। यह पृष्ठभूमि में अपने आप कुछ नहीं भेजता; भेजने के लिए आपको टैप करना होगा।",
+    backBtn: "← वापस",
+    familyTitle: "परिवार के सदस्य", familySub: "आपकी देखभाल करने वालों के नंबर और ईमेल",
+    familyAddSub: "परिवार का सदस्य जोड़ें ताकि उन्हें जल्दी संपर्क किया जा सके",
+    doctorTitle: "डॉक्टर", doctorSub: "आपके डॉक्टरों के क्लिनिक नंबर और ईमेल",
+    doctorAddSub: "डॉक्टर जोड़ें ताकि उन्हें जल्दी संपर्क किया जा सके",
+    nameLabel: "नाम", relationLabel: "रिश्ता", specialtyLabel: "विशेषज्ञता / क्लिनिक",
+    phoneLabel: "फोन नंबर", emailLabel: "ईमेल (वैकल्पिक)",
+    phoneError: "कृपया एक मान्य फोन नंबर दर्ज करें।",
+    emailError: "कृपया एक मान्य ईमेल पता दर्ज करें।",
+    primaryLabel: "आपातकाल के लिए मुख्य संपर्क",
+    addContactBtn: "परिवार का सदस्य जोड़ें", addDoctorBtn: "डॉक्टर जोड़ें",
+    famEmptyText: "अभी कोई परिवार सदस्य नहीं जोड़ा गया।",
+    docEmptyText: "अभी कोई डॉक्टर नहीं जोड़ा गया।",
+    callBtn: "कॉल करें", smsBtn: "संदेश", emailBtn: "ईमेल", reportBtn: "रिपोर्ट भेजें",
+    deleteBtn: "हटाएं", primaryTag: "मुख्य",
+    deleteConfirmMsg: "क्या आप वाकई इस संपर्क को हटाना चाहते हैं?",
+    yesBtn: "हां", noBtn: "नहीं",
+    reportSubjectFamily: "दैनिक गतिविधि अपडेट",
+    reportSubjectDoctor: "मरीज़ की दैनिक रिपोर्ट",
+    reportGreetingFamily: "नमस्ते {name}, आज का अपडेट यह है:",
+    reportGreetingDoctor: "प्रिय डॉ. {name}, आज की मरीज़ रिपोर्ट यह है:",
+    reportNoData: "आज अभी तक कोई गतिविधि दर्ज नहीं हुई है।",
+    reportMed: "दवाएं:", reportActivities: "पूरी हुई गतिविधियां:", reportAppt: "आगामी नियुक्तियां:",
+    reportMissed: "छूटी हुई खुराकें:", reportSignoff: "मनोरम मेमोरी कंपेनियन से भेजा गया।",
+    footerText: "मनोरम मेमोरी कंपेनियन — पूर्वोत्तर के परिवारों के लिए प्रेम से बनाया गया"
+  },
+  bn: {
+    appTitle: "পরিবার ও ডাক্তার", appSubtitle: "মনোরম মেমোরি সঙ্গী",
+    introTitle: "কেয়ারগিভার পোর্টাল",
+    introSub: "যোগাযোগের বিবরণ সংরক্ষণ করুন এবং এক ট্যাপে আজকের কার্যক্রম রিপোর্ট শেয়ার করুন।",
+    noticeText: "এই পৃষ্ঠাটি আপনার জন্য বার্তা প্রস্তুত করে — \"রিপোর্ট পাঠান\" চাপলে আপনার ফোনের নিজস্ব ইমেইল বা এসএমএস অ্যাপ আগে থেকে পূরণ করা রিপোর্ট সহ খুলবে। এটি ব্যাকগ্রাউন্ডে স্বয়ংক্রিয়ভাবে কিছু পাঠায় না; পাঠাতে আপনাকে ট্যাপ করতে হবে।",
+    backBtn: "← ফিরে যান",
+    familyTitle: "পরিবারের সদস্য", familySub: "আপনার যত্ন নেওয়া মানুষদের নম্বর ও ইমেইল",
+    familyAddSub: "পরিবারের সদস্য যোগ করুন যাতে দ্রুত যোগাযোগ করা যায়",
+    doctorTitle: "ডাক্তার", doctorSub: "আপনার ডাক্তারদের ক্লিনিক নম্বর ও ইমেইল",
+    doctorAddSub: "ডাক্তার যোগ করুন যাতে দ্রুত যোগাযোগ করা যায়",
+    nameLabel: "নাম", relationLabel: "সম্পর্ক", specialtyLabel: "বিশেষত্ব / ক্লিনিক",
+    phoneLabel: "ফোন নম্বর", emailLabel: "ইমেইল (ঐচ্ছিক)",
+    phoneError: "অনুগ্রহ করে একটি বৈধ ফোন নম্বর দিন।",
+    emailError: "অনুগ্রহ করে একটি বৈধ ইমেইল ঠিকানা দিন।",
+    primaryLabel: "জরুরী অবস্থার জন্য প্রধান যোগাযোগ",
+    addContactBtn: "পরিবারের সদস্য যোগ করুন", addDoctorBtn: "ডাক্তার যোগ করুন",
+    famEmptyText: "এখনো কোনো পরিবারের সদস্য যোগ করা হয়নি।",
+    docEmptyText: "এখনো কোনো ডাক্তার যোগ করা হয়নি।",
+    callBtn: "কল করুন", smsBtn: "মেসেজ", emailBtn: "ইমেইল", reportBtn: "রিপোর্ট পাঠান",
+    deleteBtn: "মুছুন", primaryTag: "প্রধান",
+    deleteConfirmMsg: "আপনি কি নিশ্চিত এই যোগাযোগটি মুছে ফেলতে চান?",
+    yesBtn: "হ্যাঁ", noBtn: "না",
+    reportSubjectFamily: "দৈনিক কার্যক্রম আপডেট",
+    reportSubjectDoctor: "রোগীর দৈনিক রিপোর্ট",
+    reportGreetingFamily: "হ্যালো {name}, আজকের আপডেট এখানে:",
+    reportGreetingDoctor: "প্রিয় ডা. {name}, আজকের রোগীর রিপোর্ট এখানে:",
+    reportNoData: "আজ এখনো কোনো কার্যক্রম রেকর্ড করা হয়নি।",
+    reportMed: "ওষুধ:", reportActivities: "সম্পন্ন কার্যক্রম:", reportAppt: "আসন্ন সাক্ষাৎকার:",
+    reportMissed: "মিসড ডোজ রেকর্ড:", reportSignoff: "মনোরম মেমোরি সঙ্গী থেকে পাঠানো হয়েছে।",
+    footerText: "মনোরম মেমোরি সঙ্গী — উত্তর-পূর্বের পরিবারগুলোর জন্য যত্ন সহকারে তৈরি"
+  },
+  as: {
+    appTitle: "পৰিয়াল আৰু চিকিৎসক", appSubtitle: "মনোৰম স্মৃতি সংগী",
+    introTitle: "যত্নলোৱোঁতাৰ প'ৰ্টেল",
+    introSub: "যোগাযোগৰ বিৱৰণ সাঁচি ৰাখক, আৰু এক টেপতে আজিৰ কাৰ্যসূচী ৰিপৰ্ট শ্বেয়াৰ কৰক।",
+    noticeText: "এই পৃষ্ঠাই আপোনাৰ বাবে বাৰ্তা প্ৰস্তুত কৰে — \"ৰিপৰ্ট পঠিয়াওক\" টিপিলে আপোনাৰ ফোনৰ নিজৰ ইমেইল বা এছএমএছ এপ আগতীয়াকৈ পূৰণ কৰা ৰিপৰ্টৰ সৈতে খোলিব। ই নিজে নিজে কিবা নপঠিয়ায়; পঠিয়াবলৈ আপুনি টিপিব লাগিব।",
+    backBtn: "← উভতি যাওক",
+    familyTitle: "পৰিয়ালৰ সদস্য", familySub: "আপোনাৰ যত্ন লোৱা মানুহবিলাকৰ নম্বৰ আৰু ইমেইল",
+    familyAddSub: "পৰিয়ালৰ সদস্য যোগ কৰক যাতে সোনকালে যোগাযোগ কৰিব পাৰি",
+    doctorTitle: "চিকিৎসক", doctorSub: "আপোনাৰ চিকিৎসকৰ ক্লিনিক নম্বৰ আৰু ইমেইল",
+    doctorAddSub: "চিকিৎসক যোগ কৰক যাতে সোনকালে যোগাযোগ কৰিব পাৰি",
+    nameLabel: "নাম", relationLabel: "সম্পৰ্ক", specialtyLabel: "বিশেষত্ব / ক্লিনিক",
+    phoneLabel: "ফোন নম্বৰ", emailLabel: "ইমেইল (ঐচ্ছিক)",
+    phoneError: "অনুগ্ৰহ কৰি এটা বৈধ ফোন নম্বৰ দিয়ক।",
+    emailError: "অনুগ্ৰহ কৰি এটা বৈধ ইমেইল ঠিকনা দিয়ক।",
+    primaryLabel: "জৰুৰীকালীন অৱস্থাৰ বাবে মুখ্য যোগাযোগ",
+    addContactBtn: "পৰিয়ালৰ সদস্য যোগ কৰক", addDoctorBtn: "চিকিৎসক যোগ কৰক",
+    famEmptyText: "এতিয়ালৈকে কোনো পৰিয়ালৰ সদস্য যোগ কৰা হোৱা নাই।",
+    docEmptyText: "এতিয়ালৈকে কোনো চিকিৎসক যোগ কৰা হোৱা নাই।",
+    callBtn: "কল কৰক", smsBtn: "বাৰ্তা", emailBtn: "ইমেইল", reportBtn: "ৰিপৰ্ট পঠিয়াওক",
+    deleteBtn: "মচি পেলাওক", primaryTag: "মুখ্য",
+    deleteConfirmMsg: "আপুনি নিশ্চিতভাৱে এই যোগাযোগটো মচিব বিচাৰে নেকি?",
+    yesBtn: "হয়", noBtn: "নহয়",
+    reportSubjectFamily: "দৈনিক কাৰ্যসূচী আপডেট",
+    reportSubjectDoctor: "ৰোগীৰ দৈনিক ৰিপৰ্ট",
+    reportGreetingFamily: "নমস্কাৰ {name}, আজিৰ আপডেট ইয়াত দিয়া হ'ল:",
+    reportGreetingDoctor: "প্ৰিয় ডাঃ {name}, আজিৰ ৰোগীৰ ৰিপৰ্ট ইয়াত দিয়া হ'ল:",
+    reportNoData: "আজি এতিয়ালৈকে কোনো কাৰ্যসূচী লিপিবদ্ধ হোৱা নাই।",
+    reportMed: "ঔষধ:", reportActivities: "সম্পূৰ্ণ কৰা কাৰ্যসূচী:", reportAppt: "আগন্তুক সাক্ষাৎ:",
+    reportMissed: "বাদ পৰা ডজৰ ৰেকৰ্ড:", reportSignoff: "মনোৰম স্মৃতি সংগীৰ পৰা পঠোৱা হৈছে।",
+    footerText: "মনোৰম স্মৃতি সংগী — উত্তৰ-পূৰ্বৰ পৰিয়ালসমূহৰ বাবে যত্নেৰে সাজি উলিওৱা"
+  }
+};
+
+let currentLang = localStorage.getItem("monorom_lang") || "en"; // shared language key across the whole site
+
+function t(key) { return (translations[currentLang] && translations[currentLang][key]) || translations.en[key] || key; }
+
+/* ===================== STATE ===================== */
+function loadState(key, fallback) {
+  try { const v = localStorage.getItem(key); return v ? JSON.parse(v) : fallback; }
+  catch (e) { return fallback; }
+}
+function saveState(key, value) { localStorage.setItem(key, JSON.stringify(value)); }
+
+let familyContacts = loadState("famdoc_family", []);
+let doctorContacts = loadState("famdoc_doctors", []);
+
+/* ===================== NAVIGATION ===================== */
+function goTo(screenName) {
+  document.querySelectorAll(".screen").forEach(s => s.classList.remove("active"));
+  document.getElementById("screen-" + screenName).classList.add("active");
+  window.scrollTo(0, 0);
+}
+
+/* ===================== CONFIRMATION MODAL ===================== */
+const modalOverlay = document.getElementById("modalOverlay");
+const modalMessage = document.getElementById("modalMessage");
+const modalConfirmBtn = document.getElementById("modalConfirmBtn");
+const modalCancelBtn = document.getElementById("modalCancelBtn");
+let pendingConfirmAction = null;
+
+function askConfirmation(message, onConfirm) {
+  modalMessage.textContent = message;
+  pendingConfirmAction = onConfirm;
+  modalOverlay.classList.add("show");
+}
+function closeModal() { modalOverlay.classList.remove("show"); pendingConfirmAction = null; }
+modalConfirmBtn.addEventListener("click", () => { const a = pendingConfirmAction; closeModal(); if (a) a(); });
+modalCancelBtn.addEventListener("click", closeModal);
+modalOverlay.addEventListener("click", e => { if (e.target === modalOverlay) closeModal(); });
+
+/* ===================== VALIDATION ===================== */
+function isValidPhone(v) { return /^[+]?[0-9\s-]{7,15}$/.test(v.trim()); }
+function isValidEmail(v) { return v.trim() === "" || /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v.trim()); }
+
+/* ===================== ACTIVITY REPORT BUILDER =====================
+   Reads the same localStorage keys used by daily-routine.html so the
+   report reflects real data recorded there (falls back gracefully if
+   that page has never been opened on this device). */
+function buildReportText(contactName, isDoctor) {
+  const medSlots = loadState("routine_med_slots", null);
+  const activityState = loadState("routine_activities", null);
+  const appointments = loadState("routine_appointments", []);
+  const reportEntries = loadState("routine_report", []);
+  const slotLabels = { morning: "Morning", afternoon: "Afternoon", evening: "Evening", night: "Night" };
+  const lines = [];
+  const greetingKey = isDoctor ? "reportGreetingDoctor" : "reportGreetingFamily";
+  lines.push(t(greetingKey).replace("{name}", contactName));
+  lines.push("");
+
+  let hasData = false;
+
+  if (medSlots) {
+    const medLines = Object.keys(medSlots)
+      .filter(id => medSlots[id].active)
+      .map(id => {
+        const s = medSlots[id];
+        const status = s.takenToday ? "✔ taken" : (s.missedLogged ? "✘ missed" : "pending");
+        return `  - ${slotLabels[id] || id}${s.name ? " (" + s.name + ")" : ""}: ${status}`;
+      });
+    if (medLines.length) {
+      hasData = true;
+      lines.push(t("reportMed"));
+      lines.push(...medLines);
+      lines.push("");
+    }
+  }
+
+  if (activityState) {
+    const doneIdx = Object.keys(activityState).filter(k => activityState[k] && activityState[k].done);
+    if (doneIdx.length) {
+      hasData = true;
+      lines.push(`${t("reportActivities")} ${doneIdx.length} ${currentLang === "en" ? "completed" : ""}`.trim());
+      lines.push("");
+    }
+  }
+
+  if (appointments && appointments.length) {
+    hasData = true;
+    lines.push(t("reportAppt"));
+    appointments.slice(0, 5).forEach(a => lines.push(`  - ${a.name}: ${a.date}`));
+    lines.push("");
+  }
+
+  if (reportEntries && reportEntries.length) {
+    const recent = reportEntries.slice(-5);
+    hasData = true;
+    lines.push(t("reportMissed"));
+    recent.forEach(r => lines.push(`  - ${slotLabels[r.slotId] || r.slotId}${r.name ? " (" + r.name + ")" : ""} on ${r.date}`));
+    lines.push("");
+  }
+
+  if (!hasData) lines.push(t("reportNoData"), "");
+  lines.push(t("reportSignoff"));
+  return lines.join("\n");
+}
+
+function sendReport(contact, isDoctor) {
+  const body = buildReportText(contact.name, isDoctor);
+  const subject = t(isDoctor ? "reportSubjectDoctor" : "reportSubjectFamily");
+  if (contact.email) {
+    const mailto = `mailto:${encodeURIComponent(contact.email)}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+    window.location.href = mailto;
+  } else if (contact.phone) {
+    const sms = `sms:${encodeURIComponent(contact.phone)}?body=${encodeURIComponent(body)}`;
+    window.location.href = sms;
+  }
+}
+
+/* ===================== RENDER: FAMILY ===================== */
+function renderFamily() {
+  const list = document.getElementById("famList");
+  const empty = document.getElementById("famEmpty");
+  list.innerHTML = "";
+  document.getElementById("familyCount").textContent = familyContacts.length;
+
+  if (familyContacts.length === 0) { empty.style.display = "block"; return; }
+  empty.style.display = "none";
+
+  familyContacts.forEach(c => list.appendChild(renderContactCard(c, "family")));
+}
+
+/* ===================== RENDER: DOCTORS ===================== */
+function renderDoctors() {
+  const list = document.getElementById("docList");
+  const empty = document.getElementById("docEmpty");
+  list.innerHTML = "";
+  document.getElementById("doctorCount").textContent = doctorContacts.length;
+
+  if (doctorContacts.length === 0) { empty.style.display = "block"; return; }
+  empty.style.display = "none";
+
+  doctorContacts.forEach(c => list.appendChild(renderContactCard(c, "doctor")));
+}
+
+function renderContactCard(c, kind) {
+  const isDoctor = kind === "doctor";
+  const card = document.createElement("div");
+  card.className = "contact-card";
+
+  const top = document.createElement("div");
+  top.className = "contact-top";
+  const left = document.createElement("div");
+  left.innerHTML = `
+    <div class="contact-name">${escapeHtml(c.name)} ${c.primary ? `<span class="primary-tag">${t("primaryTag")}</span>` : ""}</div>
+    <div class="contact-role">${escapeHtml(c.relation || "")}</div>
+    <div class="contact-detail">${c.phone ? "📞 " + escapeHtml(c.phone) : ""}${c.phone && c.email ? " · " : ""}${c.email ? "✉️ " + escapeHtml(c.email) : ""}</div>
+  `;
+  const delBtn = document.createElement("button");
+  delBtn.className = "btn btn-outline btn-sm";
+  delBtn.textContent = t("deleteBtn");
+  delBtn.onclick = () => {
+    askConfirmation(t("deleteConfirmMsg"), () => {
+      if (isDoctor) { doctorContacts = doctorContacts.filter(x => x.id !== c.id); saveState("famdoc_doctors", doctorContacts); renderDoctors(); }
+      else { familyContacts = familyContacts.filter(x => x.id !== c.id); saveState("famdoc_family", familyContacts); renderFamily(); }
+    });
+  };
+  top.appendChild(left);
+  top.appendChild(delBtn);
+
+  const actions = document.createElement("div");
+  actions.className = "contact-actions";
+  if (c.phone) {
+    const callBtn = document.createElement("a");
+    callBtn.className = "btn btn-primary btn-sm";
+    callBtn.href = `tel:${c.phone}`;
+    callBtn.textContent = "📞 " + t("callBtn");
+    actions.appendChild(callBtn);
+
+    const smsBtn = document.createElement("a");
+    smsBtn.className = "btn btn-river btn-sm";
+    smsBtn.href = `sms:${c.phone}`;
+    smsBtn.textContent = "💬 " + t("smsBtn");
+    actions.appendChild(smsBtn);
+  }
+  if (c.email) {
+    const emailBtn = document.createElement("a");
+    emailBtn.className = "btn btn-outline btn-sm";
+    emailBtn.href = `mailto:${c.email}`;
+    emailBtn.textContent = "✉️ " + t("emailBtn");
+    actions.appendChild(emailBtn);
+  }
+  if (c.phone || c.email) {
+    const reportBtn = document.createElement("button");
+    reportBtn.className = "btn btn-gold btn-sm";
+    reportBtn.textContent = "📋 " + t("reportBtn");
+    reportBtn.onclick = () => sendReport(c, isDoctor);
+    actions.appendChild(reportBtn);
+  }
+
+  card.appendChild(top);
+  card.appendChild(actions);
+  return card;
+}
+
+function escapeHtml(s) {
+  return String(s).replace(/[&<>"']/g, m => ({ "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;" }[m]));
+}
+
+/* ===================== ADD CONTACT HANDLERS ===================== */
+document.getElementById("addFamBtn").addEventListener("click", () => {
+  const name = document.getElementById("famName").value.trim();
+  const relation = document.getElementById("famRelation").value.trim();
+  const phone = document.getElementById("famPhone").value.trim();
+  const email = document.getElementById("famEmail").value.trim();
+  const primary = document.getElementById("famPrimary").checked;
+
+  const phoneEl = document.getElementById("famPhone");
+  const emailEl = document.getElementById("famEmail");
+  let valid = true;
+  if (!name || !isValidPhone(phone)) { phoneEl.classList.add("field-error"); document.getElementById("famPhoneError").classList.add("show"); valid = false; }
+  else { phoneEl.classList.remove("field-error"); document.getElementById("famPhoneError").classList.remove("show"); }
+  if (!isValidEmail(email)) { emailEl.classList.add("field-error"); document.getElementById("famEmailError").classList.add("show"); valid = false; }
+  else { emailEl.classList.remove("field-error"); document.getElementById("famEmailError").classList.remove("show"); }
+  if (!name) valid = false;
+  if (!valid) return;
+
+  if (primary) familyContacts.forEach(c => c.primary = false);
+  familyContacts.push({ id: Date.now(), name, relation, phone, email, primary });
+  saveState("famdoc_family", familyContacts);
+
+  document.getElementById("famName").value = "";
+  document.getElementById("famRelation").value = "";
+  document.getElementById("famPhone").value = "";
+  document.getElementById("famEmail").value = "";
+  document.getElementById("famPrimary").checked = false;
+  renderFamily();
+});
+
+document.getElementById("addDocBtn").addEventListener("click", () => {
+  const name = document.getElementById("docName").value.trim();
+  const specialty = document.getElementById("docSpecialty").value.trim();
+  const phone = document.getElementById("docPhone").value.trim();
+  const email = document.getElementById("docEmail").value.trim();
+
+  const phoneEl = document.getElementById("docPhone");
+  const emailEl = document.getElementById("docEmail");
+  let valid = true;
+  if (!name || !isValidPhone(phone)) { phoneEl.classList.add("field-error"); document.getElementById("docPhoneError").classList.add("show"); valid = false; }
+  else { phoneEl.classList.remove("field-error"); document.getElementById("docPhoneError").classList.remove("show"); }
+  if (!isValidEmail(email)) { emailEl.classList.add("field-error"); document.getElementById("docEmailError").classList.add("show"); valid = false; }
+  else { emailEl.classList.remove("field-error"); document.getElementById("docEmailError").classList.remove("show"); }
+  if (!name) valid = false;
+  if (!valid) return;
+
+  doctorContacts.push({ id: Date.now(), name, relation: specialty, phone, email });
+  saveState("famdoc_doctors", doctorContacts);
+
+  document.getElementById("docName").value = "";
+  document.getElementById("docSpecialty").value = "";
+  document.getElementById("docPhone").value = "";
+  document.getElementById("docEmail").value = "";
+  renderDoctors();
+});
+
+/* ===================== I18N APPLY ===================== */
+function applyTranslations() {
+  document.querySelectorAll("[data-i18n]").forEach(el => { el.textContent = t(el.getAttribute("data-i18n")); });
+  renderFamily();
+  renderDoctors();
+}
+
+/* ===================== INIT ===================== */
+applyTranslations();
+</script>
+</body>
+</html>
