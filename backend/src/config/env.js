@@ -17,6 +17,12 @@ export const env={
   jwtSecret:process.env.JWT_SECRET||'dev-only-change-me',
   adminUsername:process.env.ADMIN_USERNAME||'admin',
   adminPassword:process.env.ADMIN_PASSWORD||'Aminul@1',
-  frontendOrigins:(process.env.FRONTEND_URL||'http://localhost:5000').split(',').map(s=>s.trim()).filter(Boolean).map(toOrigin),
+  // FRONTEND_URL can contain one or more comma-separated origins.
+  // Keep the deployed GitHub Pages origin allowed as well, because the frontend
+  // is hosted at https://aminulislammiday711-maker.github.io/monoromm/
+  frontendOrigins:[...new Set([
+    ...((process.env.FRONTEND_URL||'http://localhost:5000').split(',').map(s=>s.trim()).filter(Boolean).map(toOrigin)),
+    'https://aminulislammiday711-maker.github.io'
+  ])],
   nodeEnv:process.env.NODE_ENV||'development'
 };
