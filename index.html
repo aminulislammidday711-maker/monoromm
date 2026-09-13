@@ -126,6 +126,15 @@
             font-weight: 800;
         }
 
+        .user-name {
+            display: inline-block;
+            max-width: 100%;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+            vertical-align: bottom;
+        }
+
         .greeting-text-wrap p {
             font-size: 0.85rem;
             color: var(--ink-soft);
@@ -658,7 +667,7 @@
             <div class="greeting-section">
                 <span class="greeting-emoji" id="greeting-emoji">🌇</span>
                 <div class="greeting-text-wrap">
-                    <h2 id="greeting-text">Good Evening,</h2>
+                    <h2 id="greeting-text">Good Evening, <span id="userName" class="user-name"></span></h2>
                     <p data-i18n="question">What would you like to do today?</p>
                 </div>
             </div>
@@ -772,6 +781,31 @@
         function logout() {
             MonoromAPI.logout();
             window.location.href = "login.html";
+        }
+
+        function updateUserName() {
+            const nameEl = document.getElementById("userName");
+            const greetingEl = document.getElementById("greeting-text");
+            if (!nameEl || !greetingEl) return;
+
+            let name = "";
+            try {
+                const user = typeof MonoromAPI !== "undefined" && MonoromAPI.user
+                    ? MonoromAPI.user()
+                    : JSON.parse(localStorage.getItem("monorom_user") || "null");
+                name = (user && user.name ? String(user.name).trim() : "");
+            } catch (e) {}
+
+            nameEl.textContent = name;
+            nameEl.title = name;
+
+            // Keep long names pleasant and inside the existing heading space.
+            nameEl.style.fontSize = "";
+            let size = 1.15;
+            while (nameEl.scrollWidth > nameEl.clientWidth && size > 0.78) {
+                size -= 0.05;
+                nameEl.style.fontSize = size + "rem";
+            }
         }
 
         const translations = {
@@ -1121,8 +1155,11 @@
             const savedLang = localStorage.getItem(userKey("lang")) || "en";
             if (typeof setLanguage === "function") setLanguage(savedLang);
             if (typeof updateOnlineStatus === "function") updateOnlineStatus();
+            updateUserName();
             if (typeof fitQuoteText === "function") setTimeout(fitQuoteText, 100);
         });
+
+        window.addEventListener("resize", updateUserName);
     </script>
 </body>
 </html>
