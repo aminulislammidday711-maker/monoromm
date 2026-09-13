@@ -23,5 +23,11 @@ export const env={
   adminUsername:process.env.ADMIN_USERNAME||'admin',
   adminPassword:process.env.ADMIN_PASSWORD||'Aminul@1',
   frontendOrigins:[...new Set([...productionOrigins,...configuredOrigins,'http://localhost:5000','http://127.0.0.1:5000'])],
-  nodeEnv:process.env.NODE_ENV||'development'
+  nodeEnv:process.env.NODE_ENV||'development',
+  smtpHost:process.env.SMTP_HOST||'',
+  smtpPort:Number(process.env.SMTP_PORT||587),
+  smtpUser:process.env.SMTP_USER||'',
+  smtpPass:process.env.SMTP_PASS||'',
+  smtpSecure:String(process.env.SMTP_SECURE||'false').toLowerCase()==='true',
+  smtpFrom:process.env.SMTP_FROM||process.env.SMTP_USER||'',
 };

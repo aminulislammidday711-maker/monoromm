@@ -3,7 +3,7 @@ services:
     name: monorom32-api
     runtime: node
     rootDir: backend
-    buildCommand: npm ci
+    buildCommand: npm install
     startCommand: npm start
     healthCheckPath: /api/health
     envVars:
@@ -18,4 +18,16 @@ services:
       - key: ADMIN_USERNAME
         value: admin
       - key: FRONTEND_URL
+        sync: false
+      - key: SMTP_HOST
+        sync: false
+      - key: SMTP_PORT
+        value: "587"
+      - key: SMTP_SECURE
+        value: "false"
+      - key: SMTP_USER
+        sync: false
+      - key: SMTP_PASS
+        sync: false
+      - key: SMTP_FROM
         sync: false

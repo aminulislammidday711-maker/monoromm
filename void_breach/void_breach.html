@@ -276,7 +276,7 @@
 <body>
 
 <!-- Background Music Audio Element -->
-<audio id="bg-music" loop src="https://actions.google.com/sounds/v1/science_fiction/deep_space_ambience.ogg"></audio>
+<audio id="bg-music" loop src="../assets/space_ambience.wav"></audio>
 
 <div class="stage">
 
@@ -428,6 +428,7 @@
   function changeLanguage(lang) {
     const t = translations[lang];
     if(!t) return;
+    try{localStorage.setItem('monorom_lang',lang);}catch(e){}
     document.getElementById('txt-tagline').textContent = t.tagline;
     document.getElementById('txt-lang-label').textContent = t.langLabel;
     document.getElementById('txt-brief').innerHTML = t.brief;
@@ -443,6 +444,11 @@
     document.getElementById('btn-fire').textContent = t.fireBtn;
     document.getElementById('btn-right').textContent = t.rightBtn;
   }
+
+  const savedLanguage = localStorage.getItem('monorom_lang') || 'en';
+  const langSelectEl = document.getElementById('lang-select');
+  if(langSelectEl) langSelectEl.value = savedLanguage;
+  changeLanguage(savedLanguage);
 
   /* =========================================================
      AUDIO CONTROLS

@@ -529,10 +529,11 @@ const I18N = {
   }
 };
 
-let currentLang = "en";
+let currentLang = localStorage.getItem("monorom_lang") || "en";
 
 function applyLanguage(lang){
   currentLang = lang;
+  try{localStorage.setItem("monorom_lang",lang);}catch(e){}
   const dict = I18N[lang];
   const containers = document.querySelectorAll(".i18n-fade");
   containers.forEach(c => c.classList.add("fading"));
@@ -556,6 +557,7 @@ function applyLanguage(lang){
 }
 
 const langToggleBtn = document.getElementById('langSelectToggle');
+applyLanguage(currentLang);
 const langDropdown = document.getElementById('langDropdown');
 
 langToggleBtn.addEventListener('click', (e) => {

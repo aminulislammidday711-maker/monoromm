@@ -872,7 +872,10 @@ let medSlots = loadState("routine_med_slots", (() => {
 // reportEntries: [{ id, date, slotId, name }]  -- permanent until erased
 let reportEntries = loadState("routine_report", []);
 
-const todayStr = () => new Date().toISOString().slice(0, 10);
+const todayStr = () => {
+  const d = new Date();
+  return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,"0")}-${String(d.getDate()).padStart(2,"0")}`;
+};
 
 /* Daily rollover for activities */
 (function resetActivitiesIfNewDay() {

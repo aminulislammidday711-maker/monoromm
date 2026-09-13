@@ -165,12 +165,12 @@
   <div class="topbar">
     <a class="back-btn" href="index.html" aria-label="Back to home">←</a>
     <div class="topbar-titles">
-      <p class="eyebrow">Assisted Care Platform</p>
-      <h1 class="page-title">Brain Exercises</h1>
+      <p class="eyebrow" data-global-i18n="assistedCare">Assisted Care Platform</p>
+      <h1 class="page-title" data-global-i18n="brainExercises">Brain Exercises</h1>
     </div>
   </div>
 
-  <p class="intro">Choose a game below to begin. Each one is gentle, calm, and designed to help with memory and focus — take your time.</p>
+  <p class="intro" data-global-i18n="brainIntro">Choose a game below to begin. Each one is gentle, calm, and designed to help with memory and focus — take your time.</p>
 
   <div class="grid-wrap">
     <div class="game-grid" id="gameGrid"></div>
@@ -180,35 +180,50 @@
   /* =====================================================================
      GAME CATALOG
      ===================================================================== */
-  const GAMES = [
-    {
-      id: "ball_sort",
-      name: "Ball Sort Puzzle",
-      desc: "Sort the colourful balls into matching tubes.",
-      logo: "Game logo/ball_sort_logo.jpg",
-      link: "ball_sort/ball_sort_puzzle.html"
+  const GAME_I18N = {
+    en: {
+      assistedCare:"Assisted Care Platform", brainExercises:"Brain Exercises",
+      brainIntro:"Choose a game below to begin. Each one is gentle, calm, and designed to help with memory and focus — take your time.",
+      play:"Play",
+      ballName:"Ball Sort Puzzle", ballDesc:"Sort the colourful balls into matching tubes.",
+      snakeName:"Gentle Snake", snakeDesc:"A calm journey through the hills and rivers of the Northeast.",
+      sisterName:"Seven Sister Seek", sisterDesc:"Explore and discover the beauty of the Seven Sister states.",
+      voidName:"Void Breach", voidDesc:"An engaging 3D arcade challenge through the cosmic void."
     },
-    {
-      id: "gentle_snake",
-      name: "Gentle Snake",
-      desc: "A calm journey through the hills and rivers of the Northeast.",
-      logo: "Game logo/grntle_snake_logo.jpg",
-      link: "gentle_snake/gentle_snake.html"
+    bn: {
+      assistedCare:"সহায়ক পরিচর্যা প্ল্যাটফর্ম", brainExercises:"মস্তিষ্কের ব্যায়াম",
+      brainIntro:"শুরু করতে নিচের একটি খেলা বেছে নিন। প্রতিটি খেলা শান্ত ও সহজভাবে স্মৃতি ও মনোযোগে সহায়তা করার জন্য তৈরি — সময় নিয়ে খেলুন।",
+      play:"খেলুন",
+      ballName:"বল সাজানোর ধাঁধা", ballDesc:"রঙিন বলগুলো মিলিয়ে টিউবে সাজান।",
+      snakeName:"শান্ত সাপ", snakeDesc:"উত্তর-পূর্বের পাহাড় ও নদীর মধ্য দিয়ে একটি শান্ত যাত্রা।",
+      sisterName:"সেভেন সিস্টার সিক", sisterDesc:"সেভেন সিস্টার রাজ্যগুলোর সৌন্দর্য আবিষ্কার করুন।",
+      voidName:"ভয়েড ব্রিচ", voidDesc:"মহাশূন্যের মধ্য দিয়ে একটি আকর্ষণীয় 3D আর্কেড চ্যালেঞ্জ।"
     },
-    {
-      id: "seven_sister",
-      name: "Seven Sister Seek",
-      desc: "Explore and discover the beauty of the Seven Sister states.",
-      logo: "Game logo/seven_sister_logo.jpg",
-      link: "Seven_sister/seven_sisters_seek.html"
+    hi: {
+      assistedCare:"सहायता देखभाल प्लेटफ़ॉर्म", brainExercises:"मस्तिष्क अभ्यास",
+      brainIntro:"शुरू करने के लिए नीचे एक गेम चुनें। हर गेम स्मृति और ध्यान में मदद करने के लिए शांत और सरल बनाया गया है — अपना समय लें।",
+      play:"खेलें",
+      ballName:"बॉल सॉर्ट पहेली", ballDesc:"रंगीन गेंदों को मिलान वाली ट्यूबों में सजाएँ।",
+      snakeName:"शांत साँप", snakeDesc:"पूर्वोत्तर की पहाड़ियों और नदियों के बीच एक शांत यात्रा।",
+      sisterName:"सेवन सिस्टर सीक", sisterDesc:"सेवन सिस्टर राज्यों की सुंदरता खोजें।",
+      voidName:"वॉइड ब्रीच", voidDesc:"अंतरिक्ष के बीच एक रोचक 3D आर्केड चुनौती।"
     },
-    {
-      id: "void_breach",
-      name: "Void Breach",
-      desc: "An engaging 3D arcade challenge through the cosmic void.",
-      logo: "Game logo/void_breach_logo.jpg",
-      link: "void_breach/void_breach.html"
+    as: {
+      assistedCare:"সহায়ক যত্ন প্লেটফৰ্ম", brainExercises:"মগজুৰ অনুশীলন",
+      brainIntro:"আৰম্ভ কৰিবলৈ তলৰ এটা খেল বাছক। প্ৰতিটো খেল স্মৃতি আৰু মনোযোগত সহায় কৰিবলৈ শান্ত আৰু সহজভাৱে তৈয়াৰ কৰা হৈছে — সময় লৈ খেলক।",
+      play:"খেলক",
+      ballName:"বল সজোৱা ধাঁধা", ballDesc:"ৰঙীন বলবোৰ মিল থকা টিউবত সজাওক।",
+      snakeName:"শান্ত সাপ", snakeDesc:"উত্তৰ-পূবৰ পাহাৰ আৰু নদীৰ মাজেৰে এক শান্ত যাত্ৰা।",
+      sisterName:"ছেভেন ছিষ্টাৰ ছিক", sisterDesc:"ছেভেন ছিষ্টাৰ ৰাজ্যসমূহৰ সৌন্দৰ্য আৱিষ্কাৰ কৰক।",
+      voidName:"ভইড ব্ৰিচ", voidDesc:"মহাকাশৰ মাজেৰে এক আকৰ্ষণীয় 3D আৰ্কেড চেলেঞ্জ।"
     }
+  };
+  let currentLang = localStorage.getItem("monorom_lang") || "en";
+  const GAMES = [
+    {id:"ball_sort",key:"ball",logo:"Game logo/ball_sort_logo.jpg",link:"ball_sort/ball_sort_puzzle.html"},
+    {id:"gentle_snake",key:"snake",logo:"Game logo/grntle_snake_logo.jpg",link:"gentle_snake/gentle_snake.html"},
+    {id:"seven_sister",key:"sister",logo:"Game logo/seven_sister_logo.jpg",link:"Seven_sister/seven_sisters_seek.html"},
+    {id:"void_breach",key:"void",logo:"Game logo/void_breach_logo.jpg",link:"void_breach/void_breach.html"}
   ];
 
   const genericIconSVG = `
@@ -222,27 +237,24 @@
     </svg>`;
 
   const grid = document.getElementById("gameGrid");
-
-  GAMES.forEach(game => {
-    const card = document.createElement("a");
-    card.className = "game-card";
-    card.href = game.link;
-    card.setAttribute("aria-label", "Play " + game.name);
-
-    const iconHTML = game.logo
-      ? `<img src="${game.logo}" alt="${game.name} icon">`
-      : genericIconSVG;
-
-    card.innerHTML = `
-      ${game.comingSoon ? '<span class="badge-soon">In progress</span>' : ''}
-      <div class="game-icon-wrap">${iconHTML}</div>
-      <h2 class="game-name">${game.name}</h2>
-      <p class="game-desc">${game.desc}</p>
-      <span class="play-pill">Play</span>
-    `;
-
-    grid.appendChild(card);
-  });
+  function renderGames(){
+    const t = GAME_I18N[currentLang] || GAME_I18N.en;
+    grid.innerHTML = "";
+    GAMES.forEach(game => {
+      const card = document.createElement("a");
+      card.className = "game-card";
+      card.href = game.link;
+      card.setAttribute("aria-label", t.play + " " + t[game.key+"Name"]);
+      const iconHTML = game.logo ? `<img src="${game.logo}" alt="${t[game.key+"Name"]} icon">` : genericIconSVG;
+      card.innerHTML = `<div class="game-icon-wrap">${iconHTML}</div><h2 class="game-name">${t[game.key+"Name"]}</h2><p class="game-desc">${t[game.key+"Desc"]}</p><span class="play-pill">${t.play}</span>`;
+      grid.appendChild(card);
+    });
+    document.querySelector('[data-global-i18n="assistedCare"]').textContent=t.assistedCare;
+    document.querySelector('[data-global-i18n="brainExercises"]').textContent=t.brainExercises;
+    document.querySelector('[data-global-i18n="brainIntro"]').textContent=t.brainIntro;
+  }
+  window.setLanguage = function(lang){ currentLang=GAME_I18N[lang]?lang:"en"; localStorage.setItem("monorom_lang",currentLang); renderGames(); };
+  renderGames();
 </script>
 </body>
 </html>

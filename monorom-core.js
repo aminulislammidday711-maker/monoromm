@@ -19,7 +19,10 @@
   function api(path,opts={}){return fetch(API_URL+path,{...opts,headers:{'Content-Type':'application/json',...(opts.headers||{}),...(token()?{Authorization:'Bearer '+token()}: {})}}).then(async r=>{let d={};try{d=await r.json()}catch{};if(!r.ok)throw new Error(d.error||('HTTP '+r.status));return d})}
   function writeLocal(k,v){syncing=true; try{ if(v===undefined) rawRemove.call(localStorage,scoped(k)); else rawSet.call(localStorage,scoped(k),typeof v==='string'?v:JSON.stringify(v)); } finally{syncing=false;}}
   function snapshot(){const arr=[]; if(!uid)return arr; const p=prefix(); for(let i=0;i<localStorage.length;i++){const k=rawKey.call(localStorage,i); if(k&&k.startsWith(p)){const short=k.slice(p.length); const v=rawGet.call(localStorage,k); let parsed=v; try{parsed=JSON.parse(v)}catch{} arr.push({key:short,value:parsed,updatedAt:new Date().toISOString()})}} return arr;}
-  async function push(){if(!navigator.onLine||!token()||!uid)return; const q=await readQueue(); const latest={}; q.forEach(x=>latest[x.key]=x); const changes=[...Object.values(latest)]; if(!changes.length)return; try{const result=await api('/sync/push',{method:'POST',body:JSON.stringify({changes,events:q.filter(x=>x.key!=='monorom_progress_log').map(x=>({type:'data_change',data:{key:x.key,value:x.value},createdAt:x.updatedAt}))})}); const accepted=new Set(result.accepted||[]); await clearQueue(q.filter(x=>accepted.has(x.key)).map(x=>x.id)); await pull(false);}catch(e){console.warn('Monorom sync push deferred:',e.message)}}
+  async function push(){if(!navigator.onLine||!token()||!uid)return; const q=await readQueue(); const latest={}; q.forEach(x=>latest[x.key]=x); const changes=[...Object.values(latest)]; if(!changes.length)return; try{const progressChange=changes.find(x=>x.key==='monorom_progress_log');
+      const progressEvents=Array.isArray(progressChange?.value)?progressChange.value.map(e=>({eventId:e.eventId,type:String(e.type||'activity'),data:e.data||{},createdAt:e.at||progressChange.updatedAt})): [];
+      const otherEvents=q.filter(x=>x.key!=='monorom_progress_log').map(x=>({eventId:'change-'+uid+'-'+x.id,type:'data_change',data:{key:x.key,value:x.value},createdAt:x.updatedAt}));
+      const result=await api('/sync/push',{method:'POST',body:JSON.stringify({changes,events:[...progressEvents,...otherEvents].slice(-1200)})}); const accepted=new Set(result.accepted||[]); await clearQueue(q.filter(x=>accepted.has(x.key)).map(x=>x.id)); await pull(false);}catch(e){console.warn('Monorom sync push deferred:',e.message)}}
   async function pull(showStatus=true){if(!navigator.onLine||!token()||!uid)return;try{const d=await api('/sync/pull'); syncing=true; for(const row of d.data||[]){if(row.value===null||row.value===undefined)rawRemove.call(localStorage,scoped(row.key));else rawSet.call(localStorage,scoped(row.key),typeof row.value==='string'?row.value:JSON.stringify(row.value)); await cachePut(row.key,row.value,row.updatedAt)} syncing=false; if(showStatus)status('online');}catch(e){syncing=false;status('offline');}}
   function status(mode){document.documentElement.dataset.monoromConnection=mode; const el=document.querySelector('[data-monorom-status]'); if(el)el.textContent=mode==='online'?'● Online':'● Offline';}
   async function migrateLegacy(){if(!uid)return; const keys=['routine_appointments','routine_activities','routine_water','routine_med_slots','routine_report','routine_activities_day','routine_med_day','family_contacts','doctor_contacts','ball_sort_best','seven_sister_best','void_breach_best','gentle_snake_best']; syncing=true; try{for(const k of keys){const old=rawGet.call(localStorage,k), neu=rawGet.call(localStorage,scoped(k));if(old!==null&&neu===null){rawSet.call(localStorage,scoped(k),old);rawRemove.call(localStorage,k)}}}finally{syncing=false}}
@@ -31,7 +34,8 @@
       const key='monorom_progress_log';
       let log=[];
       try{log=JSON.parse(rawGet.call(localStorage,scoped(key))||'[]'); if(!Array.isArray(log))log=[];}catch{}
-      log.push({type:String(type||'activity'),data:data||{},at:new Date().toISOString()});
+      const eventId=(window.crypto&&crypto.randomUUID)?crypto.randomUUID():('evt-'+Date.now()+'-'+Math.random().toString(36).slice(2));
+      log.push({eventId,type:String(type||'activity'),data:data||{},at:new Date().toISOString()});
       if(log.length>1000)log=log.slice(-1000);
       const sk=scoped(key);
       const now=new Date().toISOString();
@@ -40,8 +44,27 @@
       queue({key,value:log,updatedAt:now});
     }catch{}
   }
-  window.MonoromAPI={url:API_URL,api,user:()=>user(),token,logout(){rawRemove.call(localStorage,AUTH_KEY);rawRemove.call(localStorage,USER_KEY);location.href='login.html'},setLanguage(lang){rawSet.call(localStorage,LANG_KEY,lang);document.documentElement.lang=lang;},recordProgress,sync:push,pull};
+  function localDate(d=new Date()){const y=d.getFullYear(),m=String(d.getMonth()+1).padStart(2,'0'),day=String(d.getDate()).padStart(2,'0');return `${y}-${m}-${day}`;}
+  function addDays(dateStr,delta){const d=new Date(dateStr+'T12:00:00');d.setDate(d.getDate()+delta);return localDate(d);}
+  async function finalizeDailyReports(){
+    if(!navigator.onLine||!token()||!uid)return;
+    try{
+      const yesterday=addDays(localDate(),-1);
+      let last=rawGet.call(localStorage,'monorom_last_daily_report_date');
+      if(!last) last=addDays(yesterday,-1);
+      let cursor=addDays(last,1);
+      let guard=0;
+      while(cursor<=yesterday && guard++<14){
+        const r=await api('/sync/finalize-day',{method:'POST',body:JSON.stringify({date:cursor})});
+        if(r.ok||r.sent||r.reason==='no-data'||r.reason==='no-recipients'||r.reason==='smtp-not-configured'){
+          rawSet.call(localStorage,'monorom_last_daily_report_date',cursor);
+        }else break;
+        cursor=addDays(cursor,1);
+      }
+    }catch(e){console.warn('Daily report delivery deferred:',e.message);}
+  }
+  window.MonoromAPI={url:API_URL,api,user:()=>user(),token,logout(){rawRemove.call(localStorage,AUTH_KEY);rawRemove.call(localStorage,USER_KEY);location.href='login.html'},setLanguage(lang){rawSet.call(localStorage,LANG_KEY,lang);document.documentElement.lang=lang;},recordProgress,sync:push,pull,finalizeDailyReports};
   initUid(); installStorageScope();
-  window.addEventListener('online',()=>{status('online');push();pull(false)}); window.addEventListener('offline',()=>status('offline'));
-  document.addEventListener('DOMContentLoaded',async()=>{initUid(); if(location.pathname.endsWith('/login.html')||location.pathname.endsWith('/admin.html')){status(navigator.onLine?'online':'offline');return;} if(!token()||!uid){location.href='login.html';return;} installStorageScope(); status(navigator.onLine?'online':'offline'); if(navigator.onLine){await pull(false);await push();} setInterval(()=>{if(navigator.onLine)push()},15000); if('serviceWorker' in navigator) navigator.serviceWorker.register(new URL('service-worker.js',ROOT_URL)).catch(()=>{});});
+  window.addEventListener('online',async()=>{status('online');await push();await pull(false);await finalizeDailyReports();}); window.addEventListener('offline',()=>status('offline'));
+  document.addEventListener('DOMContentLoaded',async()=>{initUid(); if(location.pathname.endsWith('/login.html')||location.pathname.endsWith('/admin.html')){status(navigator.onLine?'online':'offline');return;} if(!token()||!uid){location.href='login.html';return;} installStorageScope(); status(navigator.onLine?'online':'offline'); if(navigator.onLine){await pull(false);await push();await finalizeDailyReports();} setInterval(()=>{if(navigator.onLine)push()},15000); if('serviceWorker' in navigator) navigator.serviceWorker.register(new URL('service-worker.js',ROOT_URL)).catch(()=>{});});
 })();
