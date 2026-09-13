@@ -181,6 +181,10 @@
             color: var(--ink);
         }
 
+        .settings-wrap {
+            position: relative;
+        }
+
         .settings-btn {
             width: 38px;
             height: 38px;
@@ -197,6 +201,41 @@
 
         .settings-btn:active {
             background: rgba(0, 0, 0, 0.1);
+        }
+
+        .settings-menu {
+            position: absolute;
+            top: calc(100% + 8px);
+            right: 0;
+            min-width: 150px;
+            padding: 6px;
+            background: #ffffff;
+            border: 1px solid var(--line);
+            border-radius: 12px;
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+            z-index: 1000;
+            display: none;
+        }
+
+        .settings-menu.active {
+            display: block;
+        }
+
+        .settings-logout {
+            width: 100%;
+            border: 0;
+            background: transparent;
+            color: #b42318;
+            padding: 10px 12px;
+            border-radius: 8px;
+            font-size: 0.9rem;
+            font-weight: 700;
+            text-align: left;
+            cursor: pointer;
+        }
+
+        .settings-logout:hover {
+            background: rgba(180, 35, 24, 0.08);
         }
 
         .cards-grid {
@@ -630,8 +669,12 @@
                     <span id="status-text">Online Ready</span>
                 </div>
 
-                <button class="settings-btn" id="settingsBtn" aria-label="Settings" title="Settings">⚙️</button>
-                <button class="settings-btn" id="logoutBtn" aria-label="Logout" title="Logout" onclick="logout()">🚪</button>
+                <div class="settings-wrap">
+                    <button class="settings-btn" id="settingsBtn" aria-label="Settings" title="Settings" aria-expanded="false">⚙️</button>
+                    <div class="settings-menu" id="settingsMenu">
+                        <button class="settings-logout" id="settingsLogoutBtn" type="button">Logout</button>
+                    </div>
+                </div>
             </div>
         </header>
 
@@ -1053,10 +1096,25 @@
 
         document.addEventListener("DOMContentLoaded", function() {
             const settingsBtn = document.getElementById("settingsBtn");
+            const settingsMenu = document.getElementById("settingsMenu");
+            const settingsLogoutBtn = document.getElementById("settingsLogoutBtn");
 
-            if (settingsBtn) {
-                settingsBtn.addEventListener("click", function() {
-                    alert("Settings page coming soon.");
+            if (settingsBtn && settingsMenu) {
+                settingsBtn.addEventListener("click", function(event) {
+                    event.stopPropagation();
+                    const isOpen = settingsMenu.classList.toggle("active");
+                    settingsBtn.setAttribute("aria-expanded", String(isOpen));
+                });
+
+                document.addEventListener("click", function() {
+                    settingsMenu.classList.remove("active");
+                    settingsBtn.setAttribute("aria-expanded", "false");
+                });
+            }
+
+            if (settingsLogoutBtn) {
+                settingsLogoutBtn.addEventListener("click", function() {
+                    logout();
                 });
             }
 
