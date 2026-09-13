@@ -39,13 +39,43 @@ const API=(window.MONOROM_API_URL||'http://localhost:5000/api').replace(/\/$/,''
 const T={en:{subtitle:'Memory Companion',language:'Language',userLogin:'User Login',admin:'Admin',welcome:'Welcome Back',userSub:'Sign in to continue to your personal Monorom space.',mobile:'Mobile Number',password:'Password',login:'Login',createAccount:'Create a new account',adminNote:'Administrator access is separate from user accounts.',adminTitle:'Admin Portal',adminUsername:'Admin username',adminPassword:'Admin password',adminLogin:'Open Admin Portal',registerTitle:'Create Account',name:'Name',email:'Email',register:'Register',bad:'Incorrect mobile number or password.',offline:'Offline-ready cache'},bn:{subtitle:'মেমোরি সঙ্গী',language:'ভাষা',userLogin:'ব্যবহারকারী লগইন',admin:'অ্যাডমিন',welcome:'স্বাগতম',userSub:'আপনার ব্যক্তিগত মনোরমে প্রবেশ করতে লগইন করুন।',mobile:'মোবাইল নম্বর',password:'পাসওয়ার্ড',login:'লগইন',createAccount:'নতুন অ্যাকাউন্ট তৈরি করুন',adminNote:'অ্যাডমিন প্রবেশাধিকার ব্যবহারকারী অ্যাকাউন্ট থেকে আলাদা।',adminTitle:'অ্যাডমিন পোর্টাল',adminUsername:'অ্যাডমিন ব্যবহারকারী নাম',adminPassword:'অ্যাডমিন পাসওয়ার্ড',adminLogin:'অ্যাডমিন পোর্টাল খুলুন',registerTitle:'অ্যাকাউন্ট তৈরি করুন',name:'নাম',email:'ইমেইল',register:'রেজিস্টার',bad:'মোবাইল নম্বর বা পাসওয়ার্ড সঠিক নয়।',offline:'অফলাইন ক্যাশ প্রস্তুত'},hi:{subtitle:'मेमोरी कंपेनियन',language:'भाषा',userLogin:'उपयोगकर्ता लॉगिन',admin:'एडमिन',welcome:'वापसी पर स्वागत है',userSub:'अपने व्यक्तिगत मनोरम स्थान में प्रवेश करें।',mobile:'मोबाइल नंबर',password:'पासवर्ड',login:'लॉगिन',createAccount:'नया खाता बनाएं',adminNote:'एडमिन प्रवेश उपयोगकर्ता खातों से अलग है।',adminTitle:'एडमिन पोर्टल',adminUsername:'एडमिन उपयोगकर्ता नाम',adminPassword:'एडमिन पासवर्ड',adminLogin:'एडमिन पोर्टल खोलें',registerTitle:'खाता बनाएं',name:'नाम',email:'ईमेल',register:'रजिस्टर',bad:'मोबाइल नंबर या पासवर्ड गलत है।',offline:'ऑफलाइन कैश तैयार'},as:{subtitle:'স্মৃতি সংগী',language:'ভাষা',userLogin:'ব্যৱহাৰকাৰী লগইন',admin:'এডমিন',welcome:'পুনৰ স্বাগতম',userSub:'আপোনাৰ ব্যক্তিগত মনোৰম স্থানত প্ৰৱেশ কৰিবলৈ লগইন কৰক।',mobile:'মোবাইল নম্বৰ',password:'পাছৱৰ্ড',login:'লগইন',createAccount:'নতুন একাউণ্ট সৃষ্টি কৰক',adminNote:'এডমিন প্ৰৱেশাধিকাৰ ব্যৱহাৰকাৰী একাউণ্টৰ পৰা পৃথক।',adminTitle:'এডমিন প’ৰ্টেল',adminUsername:'এডমিন ব্যৱহাৰকাৰী নাম',adminPassword:'এডমিন পাছৱৰ্ড',adminLogin:'এডমিন প’ৰ্টেল খোলক',registerTitle:'একাউণ্ট সৃষ্টি কৰক',name:'নাম',email:'ইমেইল',register:'পঞ্জীয়ন কৰক',bad:'মোবাইল নম্বৰ বা পাছৱৰ্ড ভুল।',offline:'অফলাইন কেশ সাজু'}};
 let lang=localStorage.getItem('monorom_lang')||'en'; const langEl=document.getElementById('language'); langEl.value=lang;
 function tr(){document.documentElement.lang=lang;document.querySelectorAll('[data-t]').forEach(e=>{const k=e.dataset.t;e.textContent=T[lang][k]||T.en[k]||e.textContent});document.getElementById('connection').textContent=navigator.onLine?'● Online':'● '+T[lang].offline}
-langEl.addEventListener('change',()=>{lang=langEl.value;localStorage.setItem('monorom_lang',lang);tr()});tr();window.addEventListener('online',tr);window.addEventListener('offline',tr);
+langEl.addEventListener('change',()=>{lang=langEl.value;localStorage.setItem('monorom_lang',lang);tr()});
+tr();
+window.addEventListener('online',tr);
+window.addEventListener('offline',tr);
+
+async function checkApi(){
+  const el=document.getElementById('connection');
+  if(!navigator.onLine){el.textContent='● '+T[lang].offline;return;}
+  try{
+    const r=await fetch(API+'/health',{cache:'no-store'});
+    if(!r.ok) throw new Error('HTTP '+r.status);
+    el.textContent='● Online • API connected';
+  }catch(e){
+    el.textContent='● API unavailable';
+    el.title='API: '+API;
+  }
+}
+checkApi();
 if('serviceWorker' in navigator) navigator.serviceWorker.register('service-worker.js').catch(()=>{});
 const authKey='monorom_auth',userKey='monorom_user';
 try{if(localStorage.getItem(authKey)&&localStorage.getItem(userKey))location.href='index.html'}catch{}
 function err(id,msg){const e=document.getElementById(id);e.textContent=msg;e.classList.remove('hidden')}
 function clearErr(id){document.getElementById(id).classList.add('hidden')}
-async function post(path,body){const r=await fetch(API+path,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});const d=await r.json().catch(()=>({}));if(!r.ok)throw new Error(d.error||'Request failed');return d}
+async function post(path,body){
+  const url=API+path;
+  try{
+    const r=await fetch(url,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});
+    const d=await r.json().catch(()=>({}));
+    if(!r.ok) throw new Error(d.error||('Request failed (HTTP '+r.status+')'));
+    return d;
+  }catch(e){
+    if(e instanceof TypeError || /Failed to fetch|NetworkError|Load failed/i.test(e.message||'')){
+      throw new Error('Backend connection failed. Check that the Render API is running and CORS is configured for GitHub Pages.');
+    }
+    throw e;
+  }
+}
 async function hydrate(token){try{const r=await fetch(API+'/sync/pull',{headers:{Authorization:'Bearer '+token}});if(!r.ok)return;const d=await r.json();for(const row of d.data||[]){const k='monorom_u_'+JSON.parse(localStorage.getItem(userKey)).id+'__'+row.key;if(row.value===null||row.value===undefined)localStorage.removeItem(k);else localStorage.setItem(k,typeof row.value==='string'?row.value:JSON.stringify(row.value));}}catch(e){/* offline login continues with cached state */}}
 async function saveLanguage(token,lang){try{await fetch(API+'/users/me',{method:'PUT',headers:{'Content-Type':'application/json',Authorization:'Bearer '+token},body:JSON.stringify({language:lang})})}catch(e){}}
 document.getElementById('userTab').onclick=()=>{document.getElementById('userPanel').classList.remove('hidden');document.getElementById('adminPanel').classList.add('hidden');document.getElementById('registerPanel').classList.add('hidden');userTab.classList.add('active');adminTab.classList.remove('active')};
