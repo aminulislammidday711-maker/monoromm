@@ -304,6 +304,7 @@
 
             if (matches === targetPairs) {
                 setTimeout(() => {
+                    if (window.MonoromAPI) MonoromAPI.recordProgress('game_completed', { game: 'Seven Sister Seek', level, matches, moves });
                     if (level < 10) {
                         alert(`🎉 Awesome! Level ${level} completed in ${moves} moves. Advancing to Level ${level + 1}!`);
                         level++;

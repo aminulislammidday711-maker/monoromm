@@ -671,6 +671,7 @@ document.getElementById("addFamBtn").addEventListener("click", () => {
   if (primary) familyContacts.forEach(c => c.primary = false);
   familyContacts.push({ id: Date.now(), name, relation, phone, email, primary });
   saveState("famdoc_family", familyContacts);
+  if (window.MonoromAPI) MonoromAPI.recordProgress('family_contact_added', { primary: !!primary });
 
   document.getElementById("famName").value = "";
   document.getElementById("famRelation").value = "";
@@ -698,6 +699,7 @@ document.getElementById("addDocBtn").addEventListener("click", () => {
 
   doctorContacts.push({ id: Date.now(), name, relation: specialty, phone, email });
   saveState("famdoc_doctors", doctorContacts);
+  if (window.MonoromAPI) MonoromAPI.recordProgress('doctor_contact_added', {});
 
   document.getElementById("docName").value = "";
   document.getElementById("docSpecialty").value = "";

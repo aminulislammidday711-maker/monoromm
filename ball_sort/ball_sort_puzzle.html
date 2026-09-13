@@ -759,6 +759,7 @@
     persistProgress();
 
     const perf = Adaptive.history[Adaptive.history.length - 1].performanceScore;
+    if (window.MonoromAPI) MonoromAPI.recordProgress('game_completed', { game: 'Ball Sort Puzzle', level: state.level, score: Math.round(perf * 100), moves: state.moves, timeSec: Math.round(timeSec) });
     const starCount = perf > 0.75 ? 3 : (perf > 0.45 ? 2 : 1);
     document.getElementById('winStars').textContent = '⭐'.repeat(starCount) + '☆'.repeat(3 - starCount);
 

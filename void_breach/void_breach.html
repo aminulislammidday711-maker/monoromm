@@ -815,6 +815,7 @@
 
   function endGame(win){
     running = false;
+    if (window.MonoromAPI) MonoromAPI.recordProgress('game_completed', { game: 'Void Breach', score, win: !!win, wave });
     bestVal.textContent = String(score);
     bestLine.style.display = 'block';
     showBanner(win ? 'ALL WAVES CLEARED' : 'HULL LOST', win ? '#7dffb0' : '#ff5d73');

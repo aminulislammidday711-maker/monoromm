@@ -912,6 +912,7 @@ function logMissedDose(slotId, name, dateStr) {
     name: name || ""
   });
   saveState("routine_report", reportEntries);
+  if (window.MonoromAPI) MonoromAPI.recordProgress('medicine_missed', { slot: slotId, date: dateStr || todayStr() });
 }
 
 /* ===================== I18N RENDER ===================== */
@@ -1113,6 +1114,7 @@ function renderMedicines() {
         takeBtn.onclick = () => {
           slot.takenToday = true;
           saveState("routine_med_slots", medSlots);
+          if (window.MonoromAPI) MonoromAPI.recordProgress('medicine_taken', { slot: s.id, date: todayStr() });
           renderMedicines();
         };
         actions.appendChild(takeBtn);
@@ -1257,6 +1259,7 @@ waterFreq.addEventListener("change", () => {
 document.getElementById("waterDismissBtn").addEventListener("click", () => {
   waterSettings.nextDue = Date.now() + waterSettings.freqMinutes * 60000;
   waterBanner.classList.remove("show");
+  if (window.MonoromAPI) MonoromAPI.recordProgress('hydration_acknowledged', { date: todayStr() });
   saveState("routine_water", waterSettings);
   updateWaterUI();
 });
@@ -1298,6 +1301,7 @@ function renderActivities() {
       const isDone = !!(activityState[idx] && activityState[idx].done);
       activityState[idx] = { done: !isDone, date: todayStr() };
       saveState("routine_activities", activityState);
+      if (window.MonoromAPI) MonoromAPI.recordProgress('routine_activity', { index: idx, done: !isDone, date: todayStr() });
       renderActivities();
     };
     card.addEventListener("click", toggle);
@@ -1391,6 +1395,7 @@ document.getElementById("addApptBtn").addEventListener("click", () => {
   if (!name || !date) return;
   appointments.push({ id: Date.now(), name, date });
   saveState("routine_appointments", appointments);
+  if (window.MonoromAPI) MonoromAPI.recordProgress('appointment_added', { date });
   document.getElementById("apptName").value = "";
   document.getElementById("apptDate").value = "";
   renderAppointments();

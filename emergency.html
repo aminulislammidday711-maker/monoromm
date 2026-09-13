@@ -431,6 +431,7 @@ document.getElementById("cancelBtn").addEventListener("click", () => {
 });
 
 function fireEmergency() {
+  if (window.MonoromAPI) MonoromAPI.recordProgress('emergency_triggered', { hasPrimaryContact: !!getPrimaryContact() });
   const primary = getPrimaryContact();
   // Auto-open the call to the primary contact — this is the one channel that can
   // launch without a further tap, because it fires inside the same user gesture

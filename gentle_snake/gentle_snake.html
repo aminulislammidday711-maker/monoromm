@@ -901,6 +901,7 @@ function stepGrid(){
 
 function endGame(){
   gameRunning = false;
+  if (window.MonoromAPI) MonoromAPI.recordProgress('game_completed', { game: 'Gentle Snake', score: score });
   document.getElementById('finalScoreVal').textContent = score;
   document.getElementById('gameOverOverlay').style.display = 'flex';
 }
